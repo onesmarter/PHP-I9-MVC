@@ -1,0 +1,25 @@
+{
+    "name": "sfw/autoload",
+    "description": "Autoload class",
+    "type": "library",
+    "require": {
+        "mailgun/mailgun-php": "^3.0",
+        "myclabs/php-enum": "^1.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "SFW\\Controller\\": "app/controller/",
+            "SFW\\Models\\": "app/models/",
+            "SFW\\Helpers\\": "app/helpers/",
+            "SFW\\Traits\\": "app/traits/",
+            "SFW\\Config\\": "config/",
+            "SFW\\": "app/sfw/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Joseph paul",
+            "email": "josephpaul0487@gmail.com"
+        }
+    ]
+}

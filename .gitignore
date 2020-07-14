@@ -1,0 +1,7 @@
+console/composer.lock
+console/composer.phar
+console/vendor
+initialize.php
+console/tmp
+.env
+composer_old.json
