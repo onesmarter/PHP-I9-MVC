@@ -2,7 +2,6 @@
 
 namespace SFW\Controller;
 use SFW\Connection;
-use SFW\Models\JintoModel;
 use SFW\Request;
 
 

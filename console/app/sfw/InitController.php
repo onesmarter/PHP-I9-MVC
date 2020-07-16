@@ -25,14 +25,6 @@ class InitController extends Connection {
             if($route==null) {
                 return $this->tpl->draw('error/404', $return_string = true);
             }
-            $loader = new \Composer\Autoload\ClassLoader();
-            $controllerPath = $route->controllerPath;
-            $controllerPath = $route->getNameSpace().$controllerPath;
-            $loader->loadClass($controllerPath);
-            $controller = $route->getNameSpace().$route->controller;
-            $instance = new $controller();
-
-            $functionName = $route->functionName;
             $params = [];
             if($_SERVER['REQUEST_METHOD']=="POST" || $_SERVER['REQUEST_METHOD']=="PUT") {
                 if(isset($_SERVER["CONTENT_TYPE"]) && $_SERVER["CONTENT_TYPE"] == "application/json") {
@@ -48,6 +40,29 @@ class InitController extends Connection {
                 $params[$p['param']] = $this->params[$p['position']];
             }
             $this->request->data = $params;
+
+            $loader = new \Composer\Autoload\ClassLoader();
+            if(!empty($route->middleWare)) {
+                try {
+                    $loader->loadClass("\SFW\MiddleWares\\".$route->middleWare);
+                    $middleWare = "\SFW\MiddleWares\\".$route->middleWare;
+                    $middleWare = new $middleWare();
+                    if($check = $middleWare->request($this->request,$this,$this->tpl)) {
+                        return $check;
+                    }
+                } catch (\Throwable $th) {
+                    throw new \Exception($route->middleWare." class is not defined. Please create ".$route->middleWare.".php file in console/app/middlewares folder. Please check console/app/middlewares/ExampleMiddleware.php to know how a middleware class is looks like.", 1);             
+                }
+            }
+            
+            $controllerPath = $route->controllerPath;
+            $controllerPath = $route->getNameSpace().$controllerPath;
+            
+            $controller = $route->getNameSpace().$route->controller;
+            $instance = new $controller();
+
+            $functionName = $route->functionName;
+            
             return $instance->$functionName($this->request,$this,$this->tpl);
         } catch (\Throwable $th) {
             if(isInDebugMode()) {

@@ -26,6 +26,7 @@ class Route implements \JsonSerializable {
     private static $putRoutes = [];
     private static $deleteRoutes = [];
     private static $patchRoutes = [];
+    private static $groupClassName="";
     private function __construct(String $route, String $controller,RouteTypes $type,$controllerFolderName = null) {
         
         $this->params = [];
@@ -67,7 +68,7 @@ class Route implements \JsonSerializable {
             if(!empty($value)) {
                 if(strpos($value,'{')===0 && strpos($value,'}')===strlen($value)-1) {
                     //Set param name to set data to data array
-                    $this->params [] = ['position'=>count($this->routes),'param'=>str_replace('{','',str_replace('}','',$value))];
+                    $this->params [] = ['position'=>count($this->routes),'param'=>trim(str_replace('{','',str_replace('}','',$value)))];
                     //This will helps to identify this position have an dynamic value , eg: {id}
                     $this->routes [] = '';
                 } else {
@@ -101,7 +102,7 @@ class Route implements \JsonSerializable {
         }
     }
 
-    public function setNameSpace($nameSpace) {
+    public function setNameSpace(String $nameSpace) {
         if($this->position == -1) {
             throw new \Exception("Route not added yet.", 1);        
         }
@@ -124,6 +125,16 @@ class Route implements \JsonSerializable {
         return $this->nameSpace;
     }
 
+    public function setMiddleWare(String $middleWare) {
+        if($this->position == -1) {
+            throw new \Exception("Route not added yet.", 1);        
+        }
+        $this->middleWare = $middleWare;
+        $this->updateRoute();
+        
+        return $this;
+    }
+
     public function jsonSerialize() {
         return ['route'=>$this->route,'params'=>$this->params,'routes'=>$this->routes,'controller'=>$this->controller,'functionName'=>$this->functionName,'nameSpace'=>$this->getNameSpace(),'routeType'=>$this->routeType];
     }
@@ -137,6 +148,7 @@ class Route implements \JsonSerializable {
         }
         $routeModel = new Route($route,$controller,$type,$controllerFolderName);
         $routeModel->position = count($routes);
+        $routeModel->middleWare = static::$groupClassName;
         $routes [$route] = $routeModel;
         return $routeModel;
     }
@@ -160,6 +172,17 @@ class Route implements \JsonSerializable {
     public static function patch(String $route, String $controller,$controllerFolderName = null) {
         return Route::addRoute($route,$controller,ROUTE::$patchRoutes,RouteTypes::PATCH(),$controllerFolderName);
     } 
+
+    public static function group(String $groupClassName,\Closure $function) {
+        if($function instanceof \Closure) { 
+            static::$groupClassName = $groupClassName;
+            $function();
+            static::$groupClassName = "";
+        } else{ 
+            throw new \Exception("The second parameter should be a Function with no arguments", 1);
+            
+        } 
+    }
 
     public static function findRoute(String $url,Array $params,RouteTypes $callType) {
         if(empty($url)) {

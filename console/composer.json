@@ -9,6 +9,7 @@
     "autoload": {
         "psr-4": {
             "SFW\\Controller\\": "app/controller/",
+            "SFW\\MiddleWares\\": "app/middlewares/",
             "SFW\\Models\\": "app/models/",
             "SFW\\Helpers\\": "app/helpers/",
             "SFW\\Traits\\": "app/traits/",
