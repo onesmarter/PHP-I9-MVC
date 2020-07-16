@@ -23,6 +23,15 @@
     define('API_PATH',HOST_PATH.'api/');
     define('API_URL',SITE_URL.'api/');
 
+    /************************ RESOURCE PATHS ********************************************/
+    define('RESOURCE_PATH',HOST_PATH.'resources/');
+    define('CSS_PATH',RESOURCE_PATH.'css/');
+    define('JS_PATH',RESOURCE_PATH.'js/');
+    define('IMAGES_PATH',RESOURCE_PATH.'images/');
+    define('FONTS_PATH',RESOURCE_PATH.'fonts/');
+    define('PACKAGES_PATH',RESOURCE_PATH.'packages/');
+    define('ASSETS_PATH',RESOURCE_PATH.'assets/');
+
     /************************** DB *********************************************/
     
     define('DB_HOST','localhost');
