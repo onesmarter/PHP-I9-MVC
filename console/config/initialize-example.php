@@ -2,8 +2,14 @@
     /************************ ROOT CONFIGS ********************************************/
     define('PARAMS_SEPERATOR','/');
     define('MODE',"debug");//development , production , debug
+    define('SITE_NAME','');
+    define('SITE_DESCRIPTION','');
+
+
     $phpVersions = explode(".",phpversion());
     
+    /******************************* *********************************************/
+
     if(intval($phpVersions[0])>7 || (intval($phpVersions[0])==7 && intval($phpVersions[1])>2)) {
         define('PHP_7_4',true);
     } else {
@@ -13,8 +19,9 @@
     if (!isset($_SERVER['REQUEST_SCHEME'])) {
         $_SERVER['REQUEST_SCHEME'] = "http";
     }
+    
     /************************ PATHS ********************************************/
-    define('SITE_NAME','');
+    
     define('ROOT_FOLDER','/RainTplDemo/');
     define('HOST_PATH',$_SERVER['DOCUMENT_ROOT'].ROOT_FOLDER.'console/');
     define('VIEWS_PATH',HOST_PATH.'view/');
@@ -24,7 +31,16 @@
     define('API_URL',SITE_URL.'api/');
 
     /************************ RESOURCE PATHS ********************************************/
-    define('RESOURCE_PATH',HOST_PATH.'resources/');
+
+    define('RESOURCE_FOLDER',HOST_PATH.'resources/');
+    define('CSS_FOLDER',RESOURCE_FOLDER.'css/');
+    define('JS_FOLDER',RESOURCE_FOLDER.'js/');
+    define('IMAGES_FOLDER',RESOURCE_FOLDER.'images/');
+    define('FONTS_FOLDER',RESOURCE_FOLDER.'fonts/');
+    define('PACKAGES_FOLDER',RESOURCE_FOLDER.'packages/');
+    define('ASSETS_FOLDER',RESOURCE_FOLDER.'assets/');
+
+    define('RESOURCE_PATH',SITE_URL.'resources/');
     define('CSS_PATH',RESOURCE_PATH.'css/');
     define('JS_PATH',RESOURCE_PATH.'js/');
     define('IMAGES_PATH',RESOURCE_PATH.'images/');
@@ -40,18 +56,20 @@
     define('DB_NAME','test');
     define('DB_HOST_PORT','8888');
     
+    /************************** DATE TIME *********************************************/
     
-	/************************** DATE TIME *********************************************/
 	define('DEFAULT_TIMEZONE','UTC');
-	//end
-
-
+    //end
+    
 	/************************** MAIL *********************************************/
     define('MAIL_DRIVER','MAILGUN');
 	define('MAILGUN_DOMAIN','');
 	define('MAILGUN_SECRET','');
+	define('MAILGUN_FROM_EMAIL','');
+    define('MAILGUN_DEFAULT_SUBJECT','');
+    define('PORTAL_NAME','');
     
-    
+    /******************************* *********************************************/
 
     $consoleFolder = strtolower( str_replace($_SERVER['DOCUMENT_ROOT'],"",HOST_PATH)); 
     $consolePosition = strpos(strtolower($_SERVER['REQUEST_URI']),$consoleFolder."index.php");
@@ -70,8 +88,11 @@
     $apiFolder = strtolower( str_replace(HOST_PATH,"",API_PATH));
     $apiPosition = strpos(strtolower($callingUrl),$apiFolder);
     
+    /******************************* *********************************************/
 
     define('IS_FOR_API',$apiPosition===0?true:false);
+
+    /******************************* *********************************************/
 
 
     if(IS_FOR_API===true) {

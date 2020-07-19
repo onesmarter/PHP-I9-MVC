@@ -188,17 +188,30 @@ class Route implements \JsonSerializable {
         if(empty($url)) {
             $url = "/";
         }
-        switch ($callType) {
-            case RouteTypes::GET():
-                return Route::getRoute($url,$params,Route::$getRoutes);
-            case RouteTypes::PUT():
-                return Route::getRoute($url,$params,Route::$putRoutes);
-            case RouteTypes::DELETE():
-                return Route::getRoute($url,$params,Route::$deleteRoutes);
-            case RouteTypes::PATCH():
-                return Route::getRoute($url,$params,Route::$patchRoutes);
-            case RouteTypes::POST():
-                return Route::$postRoutes[$url];
+        try {
+            switch (\strtoupper( $callType)) {
+                case RouteTypes::GET():
+                    return Route::getRoute($url,$params,Route::$getRoutes);
+                case RouteTypes::PUT():
+                    return Route::getRoute($url,$params,Route::$putRoutes);
+                case RouteTypes::DELETE():
+                    return Route::getRoute($url,$params,Route::$deleteRoutes);
+                case RouteTypes::PATCH():
+                    return Route::getRoute($url,$params,Route::$patchRoutes);
+                case RouteTypes::POST():
+                    if(!empty($url)) {
+                        if(array_key_exists($url,Route::$postRoutes)) {
+                            return Route::$postRoutes[$url];
+                        } else if(strpos($url,"/")===0 && strlen($url)!=1 && array_key_exists(substr($url,1),Route::$postRoutes)) {
+                            return Route::$postRoutes[substr($url,1)];
+                        } else if(strpos($url,"/")!==0 && array_key_exists("/".$url,Route::$postRoutes)) {
+                            return Route::$postRoutes["/".$url];
+                        }
+                    }
+                break;
+            }
+        } catch (\Throwable $th) {
+            
         }
         return null;
     }

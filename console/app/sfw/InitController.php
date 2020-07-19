@@ -17,12 +17,18 @@ class InitController extends Connection {
         $this->request = new Request([],$_FILES,$headers);
         $this->params = $params;
         $this->tpl   = new RainTPL;
+        $isForJsonOutput = IS_FOR_API === true || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'],"application/json") !== false) || (isset($this->request->headers['isJsonOutput']) && $this->request->headers['isJsonOutput']===true);
+       
+        define('IS_FOR_JSON_OUTPUT',$isForJsonOutput);
     }
 
     function init($callingUrl) {
         try {
             $route = Route::findRoute($callingUrl,$this->params,new RouteTypes($_SERVER['REQUEST_METHOD']));
             if($route==null) {
+                if(IS_FOR_JSON_OUTPUT) {
+                    return json_encode(["status"=>0,"msg"=>"Api Not Found"]);
+                }
                 return $this->tpl->draw('error/404', $return_string = true);
             }
             $params = [];
@@ -47,7 +53,8 @@ class InitController extends Connection {
                     $loader->loadClass("\SFW\MiddleWares\\".$route->middleWare);
                     $middleWare = "\SFW\MiddleWares\\".$route->middleWare;
                     $middleWare = new $middleWare();
-                    if($check = $middleWare->request($this->request,$this,$this->tpl)) {
+                    $check = $middleWare->request($this->request,$this,$this->tpl);
+                    if($check) {
                         return $check;
                     }
                 } catch (\Throwable $th) {
@@ -68,7 +75,7 @@ class InitController extends Connection {
             if(isInDebugMode()) {
                 print_r($th);
             }
-            if(IS_FOR_API || (isset($this->request->headers['isJsonOutput']) && $this->request->headers['isJsonOutput']===true)) {
+            if(IS_FOR_JSON_OUTPUT) {
                 return json_encode(["status"=>0,"msg"=>"Api Not Found"]);
             }
             return $this->tpl->draw('error/404', $return_string = true);

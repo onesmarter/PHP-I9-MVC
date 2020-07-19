@@ -8,9 +8,9 @@ class ModelHelper {
     public function __construct($table,$primaryKey,$tableKeys)  {
         $this->primaryColumn = $primaryKey;
         $this->table = $table;
-        $this->primaryVariable = $this->_toUpperCase($primaryKey);
+        $this->primaryVariable = static::createName($primaryKey);
         foreach ($tableKeys as $key ) {
-            $var = $this->_toUpperCase($key);
+            $var = static::createName($key);
             $this->tblKeys [$key] = $var;
             $this->varKeys[$var] = $key;
         }
@@ -23,16 +23,17 @@ class ModelHelper {
         return new $modelClassName($controller);
     }
 
-    private function _toUpperCase($str): String {
+    public static function createName($str,bool $isForClass = false): String {
         $value = '';
         $prevIsUpper = false;
-        $nextIsUpper = false;
+        $nextIsUpper = $isForClass;
         for ($i=0,$j=strlen($str); $i < $j ; ++$i) {
             $char = $str[$i]; 
             if($char == '_') {
                 $nextIsUpper = $prevIsUpper === false && !empty($value);
-            } else if($nextIsUpper===true) {
+            } else if($nextIsUpper===true && $prevIsUpper !== true) {
                 $prevIsUpper = true;
+                $nextIsUpper = false;
                 $value .= strtoupper($char);
             } else if($prevIsUpper === true || empty($value)) {
                 $prevIsUpper = false;
@@ -45,9 +46,12 @@ class ModelHelper {
         return $value;
     }
 
-    public function getModelValues(Model &$model,bool $forDatabase = false): Array {
+    public function getModelValues(Model &$model,bool $forDatabase = false,Array $varNames = null): Array {
         $values = [];
         foreach ($this->varKeys as $key => $value) {
+            if($varNames!==null && !array_key_exists($key,$varNames)) {
+                continue;
+            }
             if(isset($model->$key)) {
                 $values[$forDatabase === false? $key : $value] = $model->$key;
             } else {
@@ -57,10 +61,10 @@ class ModelHelper {
         return $values;
     }
 
-    public function getFieldsHaveValue(Model &$model,bool $forDatabase = false): Array {
+    public function getFieldsHaveValue(Model &$model,bool $forDatabase = false,Array $varNames = null): Array {
         $values = [];
         foreach ($this->varKeys as $key => $value) {
-            if(isset($model->$key)) {
+            if(isset($model->$key) && ($varNames===null || array_key_exists($key,$varNames))) {
                 $values[$forDatabase === false? $key : $value] = $model->$key;
             }
         }
@@ -205,7 +209,7 @@ class ModelHelper {
         return $model->modelHelper->arrayToModel($data,$model,true);
     }
 
-    public static function findAll($modelClassName,?Connection $connection = NULL,Array $conditionArray = array(),Array $columns = array(),String $orderBy = NULL,bool $ascending = true) {
+    public static function findAll($modelClassName,?Connection $connection = NULL,Array $conditionArray = array(),Array $columns = array(),String $orderBy = NULL,bool $ascending = true,int $limit=0,int $offset=-1) {
         if($connection === null) {
             $connection = new Connection();
         }
@@ -219,9 +223,10 @@ class ModelHelper {
         } else if(array_key_exists($model->modelHelper->primaryColumn,$columns)) {
             $query->orderBy($model->modelHelper->primaryColumn,$ascending);
         }  
+        $query->limit($limit,$offset);
         
         $sql = $query->getQuery($model->modelHelper->table,$columns);
-        return $model->modelHelper->findAllByQuery($modelClassName,$sql,$connection);
+        return static::findAllByQuery($modelClassName,$sql,$connection);
     }
 
     public static function findAllByQuery($modelClassName,String $sqlQuery,?Connection $connection = NULL,$dummyModel = NULL) {
@@ -241,6 +246,34 @@ class ModelHelper {
         $connection->freeResult($result);
     
         return $models;
+    }
+
+    public static function pagination($modelClassName,?Connection $connection = NULL,Array $conditionArray = array(),Array $columns = array(),String $orderBy = NULL,bool $ascending = true,int $limit=25,int $offset=0) {
+        if($connection === null) {
+            $connection = new Connection();
+        }
+        $model = static::initalizeModel($modelClassName,null);
+        $query = new QueryBuilder($connection);
+        foreach ($conditionArray as $key => $value) {
+            $query->where($key,$value);
+        }
+        if($orderBy!==null) {
+            $query->orderBy($orderBy,$ascending);
+        } else if(array_key_exists($model->modelHelper->primaryColumn,$columns)) {
+            $query->orderBy($model->modelHelper->primaryColumn,$ascending);
+        }  
+        $sql = $query->getQuery($model->modelHelper->table,$columns);
+        $result = $connection->query($sql);
+        $totalCount = $connection->totalRows($result);
+        $query->limit($limit,$offset);
+        
+        $sql = $query->getQuery($model->modelHelper->table,$columns,$model);
+        $models =  static::findAllByQuery($modelClassName,$sql,$connection);
+        $limit = $limit===null || !is_numeric($limit) || $limit<1?1:$limit;
+        $page = intval($offset/$limit)+1;
+        $totalPages = intval($totalCount/$limit) + (intval($totalCount%$limit)>0?1:0);
+        $count = $models?count($models):0;
+        return ['totalCount'=>$totalCount,'currentPage'=>$page,'totalPages'=>$totalPages,'from'=>$offset,'requestedCount'=>$limit,'count'=>$count,'data'=>$models];
     }
     
 }
