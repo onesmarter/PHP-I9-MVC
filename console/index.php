@@ -5,6 +5,8 @@ include('config/initialize.php');
 
 use \SFW\InitController; 
 
+startSession();
+
 if(IS_FOR_API) {
     include 'app/routes/api.php';
 } else {
@@ -18,7 +20,7 @@ $response = $init->init($callingUrl);
 
 
 if (empty(trim($response))) {
-    if(IS_FOR_API || (isset($init->request->headers['isJsonOutput']) && $init->request->headers['isJsonOutput']===true)) {
+    if(IS_FOR_JSON_OUTPUT===true) {
         echo json_encode(["status"=>0,"msg"=>"Api Not Found"]);
         exit();
     }
@@ -26,6 +28,7 @@ if (empty(trim($response))) {
 } else {
     echo $response;
 }
+exit();
 // throw new \Exception("Error Processing Request", 1);
 
 

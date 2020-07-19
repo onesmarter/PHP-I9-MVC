@@ -90,9 +90,12 @@ class QueryBuilder {
     }
 
     function limit(int $limit,int $offset= -1) {
-        if($offset>-1)
+        if($limit===null || $limit<1 || $this->limit!='') {
+            return $this;
+        }
+        if($offset!==null && $offset>-1)
              $this->limit="".$offset.", ";
-        $this->limit="".$limit;
+        $this->limit .= $limit;
         return $this;
     }
 
@@ -140,25 +143,34 @@ class QueryBuilder {
         return $this;
     }
 
-    function notEqual($left,$right,$isForAnd=true) {
+    function notEqual(String $left,String $right,bool $isForAnd=true) {
         return $this->where($left,$right,'!=',$isForAnd);
     }
 
-    function where($left,$right,$operator="=",$isForAnd=true) {
+    function between(String $left,String $leftBetween,String $rightBetween,bool $isForAnd=true) {
+        return $this->where($left,$leftBetween.' AND '.$rightBetween, ' BETWEEN ',$isForAnd,false);
+    }
+
+    function where(String $left,String $right,String $operator="=",bool $isForAnd=true,bool $addSingleQuoteToValue = true) {
         $this->checkAndOrOnWhere($isForAnd);
-        $this->where.=" ".$this->connection->sanitize($left).$this->connection->sanitize($operator)." '".$this->connection->sanitize($right)."' ";
+        if($addSingleQuoteToValue === true) {
+            $this->where.=" ".$this->connection->sanitize($left).$this->connection->sanitize($operator)." '".$this->connection->sanitize($right)."' ";
+        } else {
+            $this->where.=" ".$this->connection->sanitize($left).$this->connection->sanitize($operator)." ".$this->connection->sanitize($right)." ";
+        }
+        
         $this->andOrAdded=false;
         return $this;
     }
 
-    function whereByQuery($left,$query,$operator="=",$isForAnd=true) {
+    function whereByQuery(String $left,String $query,String $operator="=",bool $isForAnd=true) {
         $this->checkAndOrOnWhere($isForAnd);
         $this->where.=" ".$this->connection->sanitize($left).$this->connection->sanitize($operator)." ".$this->connection->sanitize($query)." ";
         $this->andOrAdded=false;
         return $this;
     }
 
-    function checkAndOrOnWhere($isForAnd=true) {
+    function checkAndOrOnWhere(bool $isForAnd=true) {
         $length=strlen($this->where);//|| trim($this->where," ").substr("(", -$length)===trim($this->where," ")
         if(!$this->andOrAdded  && strlen($this->where) > ($this->groupCount * 3) ) {
             $this->where.=" ".($isForAnd?"AND ":"OR ");
@@ -169,37 +181,37 @@ class QueryBuilder {
         return $this;
     }
 
-    function orWhere($left,$right,$operator="=") {
+    function orWhere(String $left,String $right,String $operator="=") {
         return $this->where($left,$right,$operator,false);
     }
 
-    function andWhere($left,$right,$operator="=") {
+    function andWhere(String $left,String $right,String $operator="=") {
         return $this->where($left,$right,$operator);
     }
 
-    function IN($left,$values,$isForAnd=true) {
+    function IN(String $left,$values,bool $isForAnd=true) {
         $this->checkAndOrOnWhere($isForAnd);
         $this->where.=" ".$this->connection->sanitize($left)." IN('".$this->connection->sanitize($values)."') ";
         $this->andOrAdded=false;
         return $this;
     }
 
-    function isNull($left,$isForAnd=true) {
+    function isNull(String $left,bool $isForAnd=true) {
         return $this->whereByQuery($left,""," IS NULL ",$isForAnd);
     }
 
-    function isNotNull($left,$isForAnd=true) {
+    function isNotNull(String $left,bool $isForAnd=true) {
         return $this->whereByQuery($left,""," IS NOT NULL ",$isForAnd);
     }
 
-    function InNumeric($left,$values,$isForAnd=true) {
+    function InNumeric(String $left,String $values,bool $isForAnd=true) {
         $this->checkAndOrOnWhere($isForAnd);
         $this->where.=" ".$this->connection->sanitize($left)." IN(".$this->connection->sanitize($values).") ";
         $this->andOrAdded=false;
         return $this;
     }
 
-    function InByQuery($left,$query,$isForAnd=true) {
+    function InByQuery(String $left,String $query,bool $isForAnd=true) {
         $this->checkAndOrOnWhere($isForAnd);
         $this->where.=" ".$this->connection->sanitize($left)." IN(".$query.") ";
         $this->andOrAdded=false;
@@ -275,8 +287,8 @@ class QueryBuilder {
     }
 
 
-    function insertQuery(String $tablename,Array $arraydata,bool $addCreateupdated_ate=true) {
-       if(!$addCreateupdated_ate && count($arraydata)==0)
+    function insertQuery(String $tablename,Array $arraydata,bool $addCreateUpdateDate=true) {
+       if(!$addCreateUpdateDate && count($arraydata)==0)
            throw new \Exception("You should provide minimum one column with value", 1);
        
        $sql = 'INSERT INTO '.$this->connection->sanitize($tablename).' (';
@@ -286,10 +298,10 @@ class QueryBuilder {
        foreach ($arraydata as $aa) {
            $isMultiDimentional=is_array($aa);
            if($isMultiDimentional) {
-               if($addCreateupdated_ate === true && empty($aa['created_at'])) {
+               if($addCreateUpdateDate === true && empty($aa['created_at'])) {
                    $aa['created_at']='now()';
                }
-               if($addCreateupdated_ate === true && empty($aa['updated_at'])) {
+               if($addCreateUpdateDate === true && empty($aa['updated_at'])) {
                     $aa['updated_at']='now()';
                 }
                foreach ($aa as $ab => $ac) {  
@@ -303,18 +315,18 @@ class QueryBuilder {
        if($isMultiDimentional === false)
            $values.="(";
    
-       if($isMultiDimentional === false && $addCreateupdated_ate === true  && empty($aa['created_at'])) {
+       if($isMultiDimentional === false && $addCreateUpdateDate === true  && empty($aa['created_at'])) {
            $arraydata['created_at']='now()';
        }
-       if($isMultiDimentional === false && $addCreateupdated_ate === true  && empty($aa['updated_at'])) {
+       if($isMultiDimentional === false && $addCreateUpdateDate === true  && empty($aa['updated_at'])) {
             $arraydata['updated_at']='now()';
         }
        foreach ($arraydata as $key => $val) {
            if ($isMultiDimentional) {
-               if($addCreateupdated_ate === true && empty($aa['created_at'])) {
+               if($addCreateUpdateDate === true && empty($aa['created_at'])) {
                    $val['created_at']='now()';
                }
-               if($addCreateupdated_ate === true  && empty($aa['updated_at'])) {
+               if($addCreateUpdateDate === true  && empty($aa['updated_at'])) {
                     $val['updated_at']='now()';
                 }
                 if(count($val)==0) {
@@ -346,10 +358,10 @@ class QueryBuilder {
        return $sql;        
    }
 
-    function updateQuery(String $table,Array $keyValues=array(),bool $addupdated_ate = true,String $tableAlias = '') {
+    function updateQuery(String $table,Array $keyValues=array(),bool $addUpdatedDate = true,String $tableAlias = '') {
         $sql = 'UPDATE '.$this->connection->sanitize($table).' '.(trim($tableAlias)==''?'':' AS '.$this->connection->sanitize($tableAlias).' ');
         $tableAlias = trim($tableAlias)==''?'':trim($tableAlias).'.';
-         if($addupdated_ate===true && empty($keyValues['updated_at'])) {
+         if($addUpdatedDate===true && empty($keyValues['updated_at'])) {
             $keyValues[$tableAlias.'updated_at']='now()';
         }
          if(count($keyValues)==0)
@@ -387,11 +399,11 @@ class QueryBuilder {
         return $query;   
     }
 
-    function insertOrUpdateQuery(String $tablename,Array $insertArray,Array $updateArray,bool $addCreateupdated_ate=true) {
-        $insertQuery = $this->insertQuery($tablename,$insertArray,$addCreateupdated_ate);
+    function insertOrUpdateQuery(String $tablename,Array $insertArray,Array $updateArray,bool $addCreateUpdateDate=true) {
+        $insertQuery = $this->insertQuery($tablename,$insertArray,$addCreateUpdateDate);
         if(count($updateArray)>0) {
             $insertQuery .= ' ON DUPLICATE KEY UPDATE ';
-            if($addCreateupdated_ate===true && empty($updateArray['updated_at'])) {
+            if($addCreateUpdateDate===true && empty($updateArray['updated_at'])) {
                 $updateArray['updated_at']='now()';
             }
             foreach ($updateArray as $key => $val) {
@@ -408,8 +420,4 @@ class QueryBuilder {
         return $insertQuery;
         
     }
-
-
-
-
 }

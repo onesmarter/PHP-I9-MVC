@@ -22,7 +22,7 @@ class Connection {
         //Create the connection
         $this -> connection = new \mysqli($this -> dbHost, $this -> dbUser, $this -> dbPass,$this -> dbName,$this -> dbHostPort);
         if ($this -> connection -> connect_errno) {
-            die($this -> connection -> connect_errno);
+            throw new \Exception($this -> connection -> connect_errno, 1);
         } 
         $this->isConnected = true;
         if(defined('SET_MYSQLI_OPTION') && SET_MYSQLI_OPTION == 1) {
@@ -193,11 +193,7 @@ class Connection {
 
 	
     
-    public function escapeString($input) {
-        $this -> connect();
-        $output = $this -> connection->real_escape_string( $input  );
-        return $output;
-    }
+    
 
     //HELPER FUNCTIONS
     public function selectQuery(String $tablename,Array $conditionsArray=array(),Array $columns=array(),String $joins="",bool $sanitizeColumns=false) {
@@ -340,6 +336,12 @@ class Connection {
         $output = preg_replace( $search, '', $input );
         return $output;
     }
+
+    public function escapeString($input) {
+        $this -> connect();
+        $output = $this -> connection->real_escape_string( $input  );
+        return $output;
+    }
     
     public function sanitize( $input) {
         
@@ -370,10 +372,7 @@ class Connection {
     }
 
     public function getQueryBuider() {
-        if(!isset($this->queryBuilder)) {
-            $this->queryBuilder = new \SFW\Helpers\QueryBuilder($this);
-        }
-        return $this->queryBuilder;
+        return new \SFW\Helpers\QueryBuilder($this);
     }
 
 

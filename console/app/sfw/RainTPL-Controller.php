@@ -582,7 +582,7 @@ class RainTPL {
 			elseif( strpos( $html, '@endphp' ) !== FALSE ) {
 
 				//close loop code
-				$compiled_code .=  " ?> ";
+				$compiled_code .=  " ?>";
 
 			}
 

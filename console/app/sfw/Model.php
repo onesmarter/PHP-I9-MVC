@@ -76,12 +76,12 @@ abstract class Model implements \JsonSerializable,\ArrayAccess {
         }
     }
 
-    public function getModelValues(bool $forDatabase = false): Array {
-        return $this->modelHelper->getModelValues($this,$forDatabase);
+    public function getModelValues(bool $forDatabase = false,Array $variableNames = null): Array {
+        return $this->modelHelper->getModelValues($this,$forDatabase,$variableNames);
     }
 
-    public function getFieldsHaveValue(bool $forDatabase = false): Array {
-        return $this->modelHelper->getFieldsHaveValue($this,$forDatabase);
+    public function getFieldsHaveValue(bool $forDatabase = false,Array $variableNames = null): Array {
+        return $this->modelHelper->getFieldsHaveValue($this,$forDatabase,$variableNames);
     }
 
 
@@ -128,12 +128,16 @@ abstract class Model implements \JsonSerializable,\ArrayAccess {
         return ModelHelper::findOneByQuery(get_called_class(),$sqlQuery,$connection);
     }
 
-    public static function findAll(?Connection $connection = NULL,Array $conditionArray=array(),Array $columns = array(),String $orderBy = NULL,bool $ascending = true) {
-        return ModelHelper::findAll(get_called_class(),$connection,$conditionArray,$columns,$orderBy,$ascending);
+    public static function findAll(?Connection $connection = NULL,Array $conditionArray=array(),Array $columns = array(),String $orderBy = NULL,bool $ascending = true,int $limit=0,int $offset=-1) {
+        return ModelHelper::findAll(get_called_class(),$connection,$conditionArray,$columns,$orderBy,$ascending,$limit,$offset);
     }
 
     public static function findAllByQuery(String $sqlQuery,?Connection $connection = NULL) {
         return ModelHelper::findAllByQuery(get_called_class(),$sqlQuery,$connection);
+    }
+
+    public static function pagination(?Connection $connection = NULL,Array $conditionArray=array(),Array $columns = array(),String $orderBy = NULL,bool $ascending = true,int $limit=25,int $offset=0) {
+        return ModelHelper::pagination(get_called_class(),$connection,$conditionArray,$columns,$orderBy,$ascending,$limit,$offset);
     }
 
     public function jsonSerialize() {
@@ -147,7 +151,6 @@ abstract class Model implements \JsonSerializable,\ArrayAccess {
     }
 
     public function offsetExists($offset) {
-        echo "<br>OFFSET EXISTS ".$offset." END<br>";
         return isset($this->$offset);
     }
 
@@ -156,7 +159,6 @@ abstract class Model implements \JsonSerializable,\ArrayAccess {
     }
 
     public function offsetGet($offset) {
-        echo "<br>OFFSET GET ".$offset." END<br>";
         return isset($this->$offset) ? $this->$offset : null;
     }
 
