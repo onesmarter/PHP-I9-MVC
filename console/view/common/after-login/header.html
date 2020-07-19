@@ -5,11 +5,38 @@
       <link rel="shortcut icon" href="{#ASSETS_PATH}images/favicon.ico" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <title>{#SITE_NAME}</title>
-      <meta name="description" content="{#SITE_DESCRIPTION}" />
+      <title>Dashboard</title>
+      <meta name="description" content="" />
       <meta name="keywords" content="" />
       <meta name="robots" content="index, follow" />
       <link rel="canonical" href="" />
-      <!-- <link href="{#CSS_PATH}dashboard.css" rel="stylesheet" type="text/css" /> -->
+      <link href="{#CSS_PATH}dashboard.css" rel="stylesheet" type="text/css" />
+      
+      <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,400;1,300;1,600&display=swap"
+         rel="stylesheet">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <link href="{#CSS_PATH}jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+      <link href="{#CSS_PATH}buttons.dataTables.min.css" rel="stylesheet" type="text/css">
+      <link href="{#CSS_PATH}materialize.css" rel="stylesheet" type="text/css" />
+      <link href="{#CSS_PATH}bootstrap.min.css" rel="stylesheet" >
+      <link href="{#PACKAGES_PATH}fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
+      <link href="{#CSS_PATH}dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
    </head>
-   <body>
+   <div class="header-top">
+      <div class="header-sub d-flex align-items-center justify-content-between">
+         <div class="header-logo">
+            <div class="logo">
+               <img class="img-fluid" src="{#ASSETS_PATH}images/logo.png" >
+            </div>
+         </div>
+         <div class="header-user d-flex align-items-center justify-content-between">
+            <div class="user-name">
+				<h5>@php echo $_SESSION['user']['email']; @endphp</h5>
+			 </div>			 
+            <a href="logout"><div class="user-photo">
+               <img  class="img-fluid" src="{#ASSETS_PATH}images/user.png" >
+            </div></a>
+         </div>
+      </div>
+   </div>
+   

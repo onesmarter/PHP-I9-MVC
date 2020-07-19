@@ -1,5 +1,75 @@
-</body>
-</html>
+<div class="row footer-main m-0 w-100">
+    <div class="col-12 text-center footer">
+        &copy; 2020 {#SITE_NAME}, All Rights Reserved
+    </div>
+</div>
+</div>
+</div>
+<!--/dashboard-->
+
+
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade pdf-modal" id="view" tabindex="-1" role="dialog" aria-labelledby="viewTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content p-0">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">File Preview</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true"><i class="fal fa-times"></i></span>
+          </button>
+        </div>
+        <div class="modal-body mb-4">
+          <div class="pdf-main d-flex align-items-start w-100">
+            <div class="pdf-block">
+               <object data="{#ASSETS_PATH}i-9-paper-version.pdf"></object>
+            </div>
+            <div class="pdf-desc-block">
+              <div class="pdf-desc-title">              
+                <h4>Validation Failed</h4>
+              </div>
+               <div class="row m-0" id="errorLising" >
+               
+               </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div> -->
+      </div>
+    </div>
+  </div>
+<!--/wrapper-->
 <script >
-    var baseUrl = "{#SITE_URL}";
+    var base_url = "{#SITE_URL}";
 </script>
+
+<script src="{#JS_PATH}jquery-3.2.1.min.js" ></script>
+<script src="{#JS_PATH}bootstrap.min.js" ></script>
+<script src='{#JS_PATH}jquery.dataTables.min.js'></script>
+<script src="{#JS_PATH}jquery.validate.min.js"></script>
+<script src='{#JS_PATH}dataTables.bootstrap4.min.js' ></script>
+<script src='{#JS_PATH}custom.js'></script>
+<script src='{#JS_PATH}commonMessage.js'></script>
+<script src='{#JS_PATH}validator.js'></script>
+<script src='{#JS_PATH}functions.js'></script>
+<!-- <script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/data.js"></script>
+<script src="https://code.highcharts.com/modules/drilldown.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script> -->
+
+<script  src="{#JS_PATH}dataTables.buttons.min.js"></script>
+<script  src="{#JS_PATH}jszip.min.js"></script>
+<script  src="{#JS_PATH}pdfmake.min.js"></script>
+<script  src="{#JS_PATH}vfs_fonts.js"></script>
+<script  src="{#JS_PATH}buttons.html5.min.js"></script>
+<script src="{#JS_PATH}materialize.min.js" ></script>
+
+<script src="{#JS_PATH}pdfobject.min.js" ></script>
+

@@ -1,8 +1,6 @@
 <?php
 
 namespace SFW\Controller;
-
-use RainTPL;
 use SFW\Connection;
 use SFW\Models\UserModel;
 use SFW\Request;
@@ -10,9 +8,8 @@ use SFW\Validation;
 
 
 class UserController {
-
-    public function loginView(Request $request,Connection $connection,RainTPL $tpl) {
-        return $tpl->draw('before-login/login',true);
+    public function loginView(Request $request,Connection $connection,$tpl) {
+         return $tpl->draw('before-login/login', $return_string = true);
     }
 
     public function login(Request $request,Connection $connection,$tpl) {
@@ -27,7 +24,7 @@ class UserController {
             $_SESSION['user'] = $user;
             return jsonResponse(["url"=>"verify"],1,"Successfully logged in");
         } 
-        return jsonResponse(null,0,"Invalid email or password");
+        return jsonResponse(null,0,"Invalid email or passwordd");
     }
 
     public function logout(Request $request,Connection $connection,$tpl) {

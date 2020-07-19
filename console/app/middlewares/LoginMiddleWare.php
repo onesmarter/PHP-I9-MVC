@@ -9,7 +9,7 @@ class LoginMiddleWare {
             if(IS_FOR_JSON_OUTPUT===true) {
                 return jsonResponse(null,0,"Logged users cannot access this section");
             }
-            header("location:dashboard");
+            header("location:verify");
             exit;
         }
         

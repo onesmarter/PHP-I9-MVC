@@ -1,13 +1,39 @@
 <?php
 
 namespace SFW\Controller;
+
+use QueryBuilder;
 use SFW\Connection;
 use SFW\Request;
-use RainTPL;
+use SFW\Models\UserDataModel;
+use SFW\Controller\UserDataController;
 
 
-class DashboardController {
-    public function dashboard(Request $request,Connection $connection,RainTPL $tpl) {
-        return $tpl->draw('after-login/dashboard', $return_string = true);
+class DashBoardController {
+    
+
+    public function amberList(Request $request,Connection $connection,$tpl) {
+      return htmlResponse($tpl,['needCount'=>false,'heading'=>'Amber','models'=>(new UserDataController())->amberList($connection)],'after-login/dashboard/user-data-list');
+    }
+    public function redList(Request $request,Connection $connection,$tpl) {
+      return htmlResponse($tpl,['needCount'=>false,'heading'=>'Red','models'=>(new UserDataController())->redList($connection)],'after-login/dashboard/user-data-list');
+    }
+    public function greenList(Request $request,Connection $connection,$tpl) {
+      return htmlResponse($tpl,['needCount'=>false,'heading'=>'Green','models'=>(new UserDataController())->greenList($connection)],'after-login/dashboard/user-data-list');
+    }
+    public function archiveList(Request $request,Connection $connection,$tpl) {
+      return htmlResponse($tpl,['needCount'=>false,'heading'=>'Archive','models'=>(new UserDataController())->archiveList($connection)],'after-login/dashboard/user-data-list');
+    }
+    public function verifyList(Request $request,Connection $connection,$tpl) {
+      $controller = new UserDataController();
+      $models = $controller->verifyList($connection);
+      $data = $controller->listCount($connection);
+      $data['models'] = $models;
+      $data['needCount'] = true;
+      $data['heading'] = 'Verify';
+      return htmlResponse($tpl,$data,'after-login/dashboard/user-data-list');
+    }
+    public function verifiedList(Request $request,Connection $connection,$tpl) {
+      return htmlResponse($tpl,['needCount'=>false,'heading'=>'Verified','models'=>(new UserDataController())->verifiedList($connection)],'after-login/dashboard/user-data-list');
     }
 }

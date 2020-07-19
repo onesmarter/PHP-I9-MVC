@@ -1,3 +1,11 @@
+    /**
+     * @author JINTO PAUL
+     * @param {message} message 
+     */
+    function consoleMsg(message,tag = "TAG") {
+      console.log(tag, message);
+    }
+    
     /** To show the error for enrtire page
     ** @author JINTO PAUL
     **@param message
@@ -34,7 +42,7 @@ function hideCommonError(element=null){
 ** @errors Format  :    {"key":["error1","error2"]}
 **/
 
-function showErrors(errors,parent = '.before-err',parentDiv='.group-block', isDropDown=false) {
+function showErrors(errors,parent = null,parentDiv='.group-block', isDropDown=false) {
   $('span.error').html('');
   $('.red-border').removeClass('red-border');
   if(errors && Object.keys(errors).length>0) {
@@ -44,10 +52,19 @@ function showErrors(errors,parent = '.before-err',parentDiv='.group-block', isDr
         if($('[name="'+ key +'"]').parents(parentDiv).length>0){
           $('[name="'+ key +'"]').parents(parentDiv).addClass('red-border');
         }
-        if(isDropDown){
-            $('input[name="'+ key +'"]').closest('.before-err').find('span.error').html(value[0]);
+        var span;
+        if(parent!=null) {
+          if(isDropDown){
+            $('input[name="'+ key +'"]').closest(parent).find('span.error').html(value[0]);
+          }
+          span = $('[name="'+ key +'"]').parents(parent).next('span.error');
+        } else {
+          if(isDropDown){
+            $('input[name="'+ key +'"]').find('span.error').html(value[0]);
+          }
+          span = $('[name="'+ key +'"]').next('span.error');
         }
-        var span = $('[name="'+ key +'"]').parents(parent).next('span.error');
+        
        // span.fadeIn();
        span.removeClass('d-none');
        span.html(value[0]);
