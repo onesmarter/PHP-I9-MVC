@@ -5,3 +5,5 @@ initialize.php
 console/tmp
 .env
 composer_old.json
+console/resources/assets/fonts
+console/resources/assets/images

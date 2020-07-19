@@ -1,0 +1,160 @@
+{include="common/after-login/header"}
+{include="common/after-login/sidebar"}
+<div class="col-md-10 px-3 content-block">
+    <!--header-->
+    <div class="header">
+        <div class="row align-items-center">						
+            <div class="col col-12" style="text-align: center;">
+                <h3>Verification Dashboard</h3>
+            </div>
+            
+        </div>
+    </div>
+    {if="$needCount === true"}
+    <div class="row align-items-center card-dashboard">						
+      <div class="col col-3">					
+        <div class="card d-flex align-items-center">
+            <div class="card-body">
+            <h5 class="card-title">{$verifiedCount}</h5>
+            <p class="card-text">Total Verified</p>
+            </div>
+            <div class="card-body d-flex justify-content-end">
+                <span class="svg-small svg-total"></span>
+            </div>
+        </div>
+      </div>
+      <div class="col col-3">					
+        <div class="card d-flex align-items-center">
+            <div class="card-body">
+            <h5 class="card-title">{$unverifiedCount}</h5>
+            <p class="card-text">Verification Pending</p>
+            </div>
+            <div class="card-body d-flex justify-content-end">
+                <span class="svg-too-small svg-pending"></span>
+            </div>
+        </div>
+      </div>					  
+      <div class="col col-3">					
+        <div class="card d-flex align-items-center">
+            <div class="card-body">
+            <h5 class="card-title">{$verifiedGreenCount}</h5>
+            <p class="card-text">Auto Verified</p>
+            </div>
+            <div class="card-body d-flex justify-content-end">
+                <span class="svg-small svg-verified-green"></span>
+            </div>
+        </div>
+      </div>
+      
+      <div class="col col-3">					
+        <div class="card d-flex align-items-center">
+            <div class="card-body">
+            <h5 class="card-title">{$verifiedAmberCount}</h5>
+            <p class="card-text">Verified Amber</p>
+            </div>
+            <div class="card-body d-flex justify-content-end">
+                <span class="svg-small svg-verified-amber"></span>
+            </div>
+        </div>
+      </div>
+      <div class="col col-3">					
+        <div class="card d-flex align-items-center">
+            <div class="card-body">
+            <h5 class="card-title">{$verifiedRedCount}</h5>
+            <p class="card-text">Verified Red</p>
+            </div>
+            <div class="card-body d-flex justify-content-end">
+                <span class="svg-small svg-verified-red"></span>
+            </div>
+        </div>
+      </div>
+      <div class="col col-3">					
+        <div class="card d-flex align-items-center">
+            <div class="card-body">
+            <h5 class="card-title">{$unverifiedGreenCount}</h5>
+            <p class="card-text">Rejected</p>
+            </div>
+            <div class="card-body d-flex justify-content-end">
+                <span class="svg-too-small svg-rejected"></span>
+            </div>
+        </div>
+      </div>
+      <div class="col col-3">					
+        <div class="card d-flex align-items-center">
+            <div class="card-body">
+            <h5 class="card-title">{$unverifiedAmberCount}</h5>
+            <p class="card-text">Unverified Amber</p>
+            </div>
+            <div class="card-body d-flex justify-content-end">
+                <span class="svg-small svg-unverified-amber"></span>
+            </div>
+        </div>
+      </div>
+      <div class="col col-3">					
+        <div class="card d-flex align-items-center">
+            <div class="card-body">
+            <h5 class="card-title">{$unverifiedRedCount}</h5>
+            <p class="card-text">Unverified Red</p>
+            </div>
+            <div class="card-body d-flex justify-content-end">
+                <span class="svg-small svg-unverified-red"></span>
+            </div>
+        </div>
+      </div>
+                        
+    </div>
+    {/if}
+    <!--dataTable-->
+    <div class="dataTable-custom">
+        <!--record-->
+        <div class="record">
+            <table class="responsive-table custom-datatable table-bordered">
+                <thead>
+                    <tr>
+                        <th class="id">#ID</th>
+                        <th>File Name</th>
+                        <th class="verified text-center">Process Start Time</th>
+                        <th class="status text-center">Status</th>
+                        <th class="preview">&nbsp;</th>
+                        <th class="action text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {loop="$models"} 
+                    @php 
+                    $class = "red";
+                    if($value1->lowestScore >= 60 && $value1->lowestScore <= 79) {
+                        $class = "amber";
+                    } else if($value1->lowestScore >= 80 && $value1->lowestScore <= 100) {
+                        $class = "green";
+                    } 
+                    @endphp
+                    <tr>
+                        <td>{$value1.pdfId}</td>
+                        <td>{$value1.pdfName}</td>
+                        <td class="text-center">{function="date('m/d/Y H:i:s', strtotime($value1.processStartTime))"}</td>
+                       
+                        <td class="text-center"> <span class="{$class}">{$heading}</span> </td>
+                        
+                        <td class="text-center"> <a href="" class="material-icons Medium tooltipped verifyView" data-position="top"
+                                data-tooltip="Preview" data-toggle="modal" data-target="#view" data-json="{$value1.errorList}" ><i class="fas fa-eye view-icon"></i></a> </td>
+                        <td class="text-center action">
+                            <div class="row no-gutters justify-content-between">
+                                {if="$value1.status=='unverified'"}
+                                <div class="col"> <a href="" class=""><i class="fas fa-check check-icon update_unverified" data-id="{$value.id}"></i></a> </div>
+                                {/if}
+                                <div class="col"> <a href="" class="remove Small"><i class="fas fa-trash"></i></a> </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {/loop}
+                </tbody>
+            </table>
+        </div>
+        <!--/record-->
+    </div>
+    <!--/dataTable-->
+</div>
+
+{include="common/after-login/footer"}
+<script src='{#JS_PATH}dashboard.js'></script>

@@ -1,0 +1,79 @@
+//INPUT TYPE DEFAULT
+@mixin input($radius:0.25rem){
+font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  border: $border;
+  background:#fff;
+	border-radius: $radius;
+	padding: 0.75rem 1.25rem;	
+	transition: $transition;			
+	-webkit-appearance:none; 
+		 -moz-appearance:none;
+			    appearance:none;
+	
+}
+
+
+//INPUT TYPE TEXT
+@mixin inputText ($width:100%) {
+	@include input;
+	width:$width;
+}
+
+//INPUT TEXTAREA
+@mixin textarea ($width:100%) {
+	@include input;
+	width:$width;
+}
+
+//INPUT TYPE BUTTON
+@mixin inputButton($width:auto) {
+	@include input;
+	width:$width;
+  background-color: $bg-primary;
+  border:1px solid $clr-primary;
+  color: #fff;
+  &:hover{
+  	background-color: $bg-secondary;
+  	border:1px solid $clr-secondary;
+  }
+}
+
+//LINK BUTTON
+@mixin button($display: block) {
+	display: $display;
+	padding: 0.75rem 1.25rem;
+	background:$bg-primary;
+	color: #fff;
+	text-decoration: none;
+	transition: $transition;
+	&:hover{
+		background:$bg-primary;
+	}
+}
+
+//outlineButton
+@mixin outlineButton($display: block) {
+	display: $display;
+	padding: .5rem 1.2rem;
+	border: 1px solid $clr-primary ;
+	border-radius: 2rem;
+	color: $text-primary;
+	@content;
+	transition: $transition;
+	&:hover {
+		background:$bg-primary;
+		color: #fff;
+	}
+}
+
+//boxWrap
+@mixin boxWrap {
+	width: 100%;
+	background: #fff;
+	border: $border;
+	border-radius: $radius;
+	padding: 1rem;
+	@content;
+}
