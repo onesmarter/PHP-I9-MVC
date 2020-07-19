@@ -5,7 +5,7 @@ let specialCharactersRegex = new RegExp("^[?=.*!@#$%^&*]+$");
 ** @author JINTO PAUL
 **/
 function isHavingError(errorArray) {
-	return errorArray && Object.keys(errors).length>0;
+	return errorArray && Object.keys(errorArray).length>0;
 }
 
 /**
@@ -62,8 +62,7 @@ function validateInput(inputName,functionName,error,errorMap,isForTrue=true) {
 	if(isEmpty($("[name='"+inputName+"']").val())){
 		return errorMap;
 	}
-	var result = functionName($("[name='"+inputName+"']").val());
-
+	var result = window[functionName]($("[name='"+inputName+"']").val());
 	if(isForTrue != result) {
 		if(error && errorMap) {
 			if(errorMap[inputName])
@@ -147,32 +146,7 @@ function isInputDateBefore(name,secondName,key,errorMessage,errorMap = {}) {
 	return errorMap;
 
 }
-/**
-** @author RIYA GEORGE
-**/
-function validateIfYesNo(inputName,errorMap) {
-	if(isEmpty($("[name='"+inputName+"']").val())){
-		if(errorMap[inputName])
-			errorMap[inputName].push("Required field");
-		else
-			errorMap[inputName] = ["Required field"];
-	}
- 	return errorMap;
 
-}
-
-/**
-** @author sarath
-**/
-function isSpecialChars(value,errorMap = {}) {
-
-	var specialCharactersRegex = new RegExp("^[?=.*!@#$%^&*]+$");
-	var character = String.fromCharCode(value);
-	if(specialCharactersRegex.test(character)) {
-	 return false;
-	}
-	 return true;
-}
 
 
 /**
@@ -181,14 +155,13 @@ function isSpecialChars(value,errorMap = {}) {
 // checks that an input string is an integer, with an optional +/- sign character
 function isIntegerValue (s) {
 
-var isInteger_re     = /^\s*(\+|-)?\d+\s*$/;
-return String(s).search (isInteger_re) != -1
+	var isInteger_re     = /^\s*(\+|-)?\d+\s*$/;
+	return String(s).search (isInteger_re) != -1
 
 }
 
 function isUrlValid(userInput) {
     var res = userInput.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
-    console.log('status'+res);
     if(res == null)
         return false;
     else
