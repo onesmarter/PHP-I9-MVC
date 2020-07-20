@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-    function updateStatus(event,element,url) {
+    function updateStatus(event,element,url,removeTrOnSuccess=false) {
         event.preventDefault();
         var userId = $(element).attr('data-id');
         $.ajax({
@@ -14,28 +14,36 @@ $(document).ready(function() {
                 try {
                     if (response.status == 1) {
                         showSuccess(response.msg); 
-                        $(element).closest('tr').remove();
+                        if(removeTrOnSuccess) {
+                            $(element).closest('tr').remove();
+                        }
+                        
                     } else {
                         showSuccess(response.msg,true); 
+                        $(element).removeClass('d-none');
                     }
                 } catch (error) {
                     showSuccess("Something went wrong",true);
+                    $(element).removeClass('d-none');
                 }
                 
             },
             error: function(er) {
                 showSuccess("Something went wrong",true);
+                $(element).removeClass('d-none');
                 consoleMsg(er);
             }
             
         });
     }
     $(".updateVerified, .update_unverified").on("click", function(e){
+        $(this).addClass('d-none');
         updateStatus(e,this,'api/setUserDataAsVerified');       
     });
 
     $(".updateDeleted").on("click", function(e){
-        updateStatus(e,this,'api/deleteUserData'); 
+        $(this).addClass('d-none');
+        updateStatus(e,this,'api/deleteUserData',true); 
     });
 
     $(".verifyView").on("click", function(e){

@@ -38,7 +38,7 @@ class UserDataController {
       public function getList(int $from,int $to,Connection $connection,String $query = null) {
           if($query === null) {
             $builder = $connection->getQueryBuider();
-            $query = $builder->between('lowest_score',$from,$to)->getQuery('tbl_users_data');
+            $query = $builder->where('status','deleted','!=')->between('lowest_score',$from,$to)->getQuery('tbl_users_data');
           }
           
           return $this->getParsedVerifyList( UserDataModel::findAllByQuery($query,$connection));         
@@ -50,34 +50,48 @@ class UserDataController {
       public function redList(Connection $connection) {
         return $this->getList(0,59,$connection);
       }
+      //Use autoVerifiedList instead
       public function greenList(Connection $connection) {
         return $this->getList(80,100,$connection);
+      }
+      public function autoVerifiedList(Connection $connection) {
+        $builder = $connection->getQueryBuider();
+        $query = $builder->where('status','auto-verified')->getQuery('tbl_users_data');
+        return $this->getList(0,0,$connection,$query);
       }
       public function archiveList(Connection $connection) {
         $builder = $connection->getQueryBuider();
         $query = $builder->where('status','archived')->getQuery('tbl_users_data');
-        return $this->getList(60,79,$connection,$query);
+        return $this->getList(0,0,$connection,$query);
       }
       public function verifyList(Connection $connection) {
         $builder = $connection->getQueryBuider();
         $query = $builder->where('status','unverified')->getQuery('tbl_users_data');
-        return $this->getList(60,79,$connection,$query);
+        return $this->getList(0,0,$connection,$query);
       }
       public function verifiedList(Connection $connection) {
         $builder = $connection->getQueryBuider();
-        $query = $builder->where('status','verified')->getQuery('tbl_users_data');
-        return $this->getList(60,79,$connection,$query);
+        $query = $builder->where('status','verified')->or()->where('status','auto-verified')->getQuery('tbl_users_data');
+        return $this->getList(0,0,$connection,$query);
+      }
+      public function deletedList(Connection $connection) {
+        $builder = $connection->getQueryBuider();
+        $query = $builder->where('status','deleted')->getQuery('tbl_users_data');
+        return $this->getList(0,0,$connection,$query);
       }
 
       public function listCount(Connection $connection) {
-        $status = ["verifiedGreenCount"=>"`status` = 'verified' AND `lowest_score` BETWEEN 80 AND 100",
-        "unverifiedGreenCount"=>"`status` = 'unverified' AND `lowest_score` BETWEEN 80 AND 100",
+        $status = [
+          // "verifiedGreenCount"=>"`status` = 'verified' AND `lowest_score` BETWEEN 80 AND 100",
+        // "unverifiedGreenCount"=>"`status` = 'unverified' AND `lowest_score` BETWEEN 80 AND 100",
         "verifiedRedCount"=>"`status` = 'verified' AND `lowest_score` BETWEEN 0 AND 59",
         "unverifiedRedCount"=>"`status` = 'unverified' AND `lowest_score` BETWEEN 0 AND 59",
         "verifiedAmberCount"=>"`status` = 'verified' AND `lowest_score` BETWEEN 60 AND 79",
         "unverifiedAmberCount"=>"`status` = 'unverified' AND `lowest_score` BETWEEN 60 AND 79",
         "unverifiedCount"=>"`status` = 'unverified'",
-        "verifiedCount"=>"`status` = 'verified'"];
+        "verifiedCount"=>"`status` = 'verified'",
+        "autoVerifiedCount"=>"`status` = 'auto-verified'",
+        "deletedCount"=>"`status` = 'deleted'"];
         $query = "SELECT ";
         foreach ($status as $varKey => $condition) {
           $query .= "SUM(CASE WHEN ".$condition." THEN 1 ELSE 0 END) AS '".$varKey."',";
@@ -92,7 +106,7 @@ class UserDataController {
       }
 
       public function setDeleted(Request $request,Connection $connection) {
-        return $this->setStatus($request,$connection,'delete');
+        return $this->setStatus($request,$connection,'deleted');
       }
 
       private function setStatus(Request $request,Connection $connection,String $status) {

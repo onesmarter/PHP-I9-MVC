@@ -252,12 +252,16 @@ class ExcelReaderController {
     
         $id = -1;
         $status = $validatedData['isValidationSuccess']?1:0;
-        if($user=$this->connection->fetchAssoc($queryResult)) {
+        $statusString = "unverified";
+        if(intval($validatedData['lowestScore'])>=80) {
+            $statusString = "auto-verified";
+        }
+        if($user=$queryResult->fetch_assoc()) {
             $id= $user['id'];
-            $update = "UPDATE tbl_users_data SET  pdf_id='".$this->sanitize($pdfId)."',process_start_time='".$this->sanitize($pdfStartTime)."', content='".$this->sanitize(json_encode($this->clmValues))."',status_data='".$this->sanitize(json_encode($validatedData))."',lowest_score='".$this->sanitize($validatedData['lowestScore'])."',lowest_column='".$this->sanitize($validatedData['lowestColumn'])."',is_success='".$this->sanitize($status)."' WHERE id='".$id."'";
+            $update = "UPDATE tbl_users_data SET  pdf_id='".$this->sanitize($pdfId)."',process_start_time='".$this->sanitize($pdfStartTime)."', content='".$this->sanitize(json_encode($this->clmValues))."',status_data='".$this->sanitize(json_encode($validatedData))."',lowest_score='".$this->sanitize($validatedData['lowestScore'])."',lowest_column='".$this->sanitize($validatedData['lowestColumn'])."',is_success='".$this->sanitize($status)."',status='".$statusString."' WHERE id='".$id."'";
             $this->connection->query($update);
         } else {    
-            $sql = "INSERT INTO tbl_users_data(pdf_id,pdf_path,pdf_name,process_start_time,content,status_data,lowest_score,lowest_column,is_success) VALUES('".$this->sanitize($pdfId)."','".$this->sanitize($pdfPath)."','".$this->sanitize($pdfName)."','".$this->sanitize($pdfStartTime)."','".$this->sanitize(json_encode($this->clmValues))."','".$this->sanitize(json_encode($validatedData))."','".$this->sanitize($validatedData['lowestScore'])."','".$this->sanitize($validatedData['lowestColumn'])."','".($this->sanitize($status))."')";
+            $sql = "INSERT INTO tbl_users_data(pdf_id,pdf_path,pdf_name,process_start_time,content,status_data,lowest_score,lowest_column,is_success,status) VALUES('".$this->sanitize($pdfId)."','".$this->sanitize($pdfPath)."','".$this->sanitize($pdfName)."','".$this->sanitize($pdfStartTime)."','".$this->sanitize(json_encode($this->clmValues))."','".$this->sanitize(json_encode($validatedData))."','".$this->sanitize($validatedData['lowestScore'])."','".$this->sanitize($validatedData['lowestColumn'])."','".($this->sanitize($status))."','".$statusString."')";
             
             $id = $this->connection->query($sql);
              if(!$id || empty($id = $this->connection->insertId())) {

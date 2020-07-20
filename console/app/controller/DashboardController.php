@@ -18,6 +18,7 @@ class DashBoardController {
     public function redList(Request $request,Connection $connection,$tpl) {
       return htmlResponse($tpl,['needCount'=>false,'heading'=>'Red','models'=>(new UserDataController())->redList($connection)],'after-login/dashboard/user-data-list');
     }
+    //Use autoVerifiedList instead
     public function greenList(Request $request,Connection $connection,$tpl) {
       return htmlResponse($tpl,['needCount'=>false,'heading'=>'Green','models'=>(new UserDataController())->greenList($connection)],'after-login/dashboard/user-data-list');
     }
@@ -35,5 +36,11 @@ class DashBoardController {
     }
     public function verifiedList(Request $request,Connection $connection,$tpl) {
       return htmlResponse($tpl,['needCount'=>false,'heading'=>'Verified','models'=>(new UserDataController())->verifiedList($connection)],'after-login/dashboard/user-data-list');
+    }
+    public function deletedList(Request $request,Connection $connection,$tpl) {
+      return htmlResponse($tpl,['needCount'=>false,'heading'=>'Rejected','models'=>(new UserDataController())->deletedList($connection)],'after-login/dashboard/user-data-list');
+    }
+    public function autoVerifiedList(Request $request,Connection $connection,$tpl) {
+      return htmlResponse($tpl,['needCount'=>false,'heading'=>'Auto Verified','models'=>(new UserDataController())->autoVerifiedList($connection)],'after-login/dashboard/user-data-list');
     }
 }

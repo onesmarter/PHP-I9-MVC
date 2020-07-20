@@ -12,8 +12,10 @@ Route::group("AuthMiddleWare",function () {
     Route::get('verified', 'DashBoardController@verifiedList');
     Route::get('amber', 'DashBoardController@amberList');
     Route::get('red', 'DashBoardController@redList');
-    Route::get('green', 'DashBoardController@greenList');
+    // Route::get('green', 'DashBoardController@greenList');
     Route::get('archive', 'DashBoardController@archiveList');
+    Route::get('autoVerified', 'DashBoardController@autoVerifiedList');
+    Route::get('rejected', 'DashBoardController@deletedList');
     Route::get('settings', 'SettingsController@settings');
     Route::get('logout', 'UserController@logout');
     Route::post('validateAllUsers', 'ExcelUploadController@validateAllUsers');
