@@ -1,5 +1,5 @@
 <?php 
-	error_reporting(E_ALL); ini_set('display_errors', '1');
+	error_reporting(E_ALL); ini_set('display_errors', isInProductionMode()?'0':'1');
 	
 	include HOST_PATH."app/sfw/RainTPL-Controller.php";
 	raintpl::configure("base_url", SITE_URL );
@@ -17,4 +17,5 @@
 	
 	
 
-    require HOST_PATH."app/helpers/HelperFunctions.php";
+	require HOST_PATH."app/helpers/HelperFunctions.php";
+	
