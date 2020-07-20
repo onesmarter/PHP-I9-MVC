@@ -30,6 +30,11 @@ class Connection {
         }
     }
 
+    public function getConnection() {
+        $this->connect();
+        return $this->connection;
+    }
+
     public function isInTransactionMode() {
 		return isset($this->transactionStarted) && $this->transactionStarted;
     }
