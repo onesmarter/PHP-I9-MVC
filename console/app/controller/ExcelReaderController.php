@@ -245,6 +245,7 @@ class ExcelReaderController {
     }
 
     private function insertData($pdfId ,$pdfPath,$pdfName,$pdfStartTime) {
+        $this->pdfName = $pdfName;
         $validatedData = $this->validate();
         $validatedData['allValidation'] = $this->validatedColumns;
         $queryResult = $this->connection->query("SELECT id FROM `tbl_users_data` WHERE pdf_path='".$pdfPath."' AND pdf_name='".$pdfName."'");
@@ -396,7 +397,7 @@ class ExcelReaderController {
             //list B and C selected..  But the lowest column is in list C
             $listLowestColumn = $data['section'.$listCsectionId]['lowestColumn'];
         }
-
+        
         $listAselectedDocCount = $data['section'.$listAsectionId]['itemsCountThatHaveValue']>0 ? 1:0;
         $listAselectedDocCount += $data['section'.$listAsectionId_1]['itemsCountThatHaveValue']>0 ? 1:0;
         $listAselectedDocCount += $data['section'.$listAsectionId_2]['itemsCountThatHaveValue']>0 ? 1:0;
@@ -420,9 +421,16 @@ class ExcelReaderController {
             $data['sectionABC'] = ["reason"=>"Select only list A OR Select both list B and list C","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$listLowestColumn,"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
         }
         $isValidationSuccess = $isValidationSuccess && $data['sectionABC']['isValidationSuccess'];
+        
         if(array_key_exists('reason',$data['sectionABC'])) {
             $lowestScore = 0;
             $lowestColumn = $data ["sectionABC"]['lowestColumn'];
+        } else {
+            unset($data['section'.$listAsectionId]);
+            unset($data['section'.$listAsectionId_1]);
+            unset($data['section'.$listAsectionId_2]);
+            unset($data['section'.$listBsectionId]);
+            unset($data['section'.$listAsectionId]);
         }
         $lowestColumnOriginalName = "";
         if($lowestColumn!=null && $lowestColumn!="" && array_key_exists($lowestColumn,$this->allRequiredColumns)) {
@@ -466,13 +474,13 @@ class ExcelReaderController {
                         //Validation will fail if the min count > selected item count OR max count < selected item count
                         if ($data['min_clm_select']!='0' && $response['selectedItemCount']<intval($data['min_clm_select'])  ) {
                             $errMsg = "Minimum Selected Item < ".$data['min_clm_select'];
-                            $response['minimum-select-error'][]=['column'=>$originalKey,'originalName'=>$data ['original_name'],"reason"=>$errMsg,'common_clm_name'=>$data['common_clm_name']];
+                            $response['minimum-select-error'][]=['column'=>$originalKey,'originalName'=>$data ['original_name'],"reason"=>$errMsg,'common_clm_name'=>$data['common_clm_name'],'sectionId'=>$data['section_id']];
                         } else if ($data['max_clm_select']!='0' && $response['selectedItemCount']>intval($data['max_clm_select'])) {
                         
                             if($response['isValidationSuccess']) {
                                 $response = $this->addResponseData($response,0,$originalKey,false,$data['common_clm_name']);
                             }
-                            $response['failedColumns'][]=['column'=>$originalKey,'originalName'=>$data ['original_name'],"reason"=>"Maximum Selected Items > ".$data['max_clm_select'],'common_clm_name'=>$data['common_clm_name']];
+                            $response['failedColumns'][]=['column'=>$originalKey,'originalName'=>$data ['original_name'],"reason"=>"Maximum Selected Items > ".$data['max_clm_select'],'common_clm_name'=>$data['common_clm_name'],'sectionId'=>$data['section_id']];
                             $this->validatedColumns[$originalKey] = 0;
                             $response['minimum-select-error'] = [];
                         } else {
@@ -481,7 +489,7 @@ class ExcelReaderController {
                     } else if(empty($this->clmValues[$originalKey])) {
                         if($isParentSelected) {
                             //No need to check the date if it is a child column and it's parent not selected
-                            $response['failedColumns'][]=['column'=>$originalKey,'originalName'=>$data ['original_name'],"reason"=>"Empty Value",'common_clm_name'=>$data['common_clm_name']];
+                            $response['failedColumns'][]=['column'=>$originalKey,'originalName'=>$data ['original_name'],"reason"=>"Empty Value",'common_clm_name'=>$data['common_clm_name'],'sectionId'=>$data['section_id']];
                             if($response['isValidationSuccess']) {
                                 $response = $this->addResponseData($response,0,$originalKey,false,$data['common_clm_name']);
                             }
@@ -494,7 +502,7 @@ class ExcelReaderController {
                         if(!$isParentSelected) {
                             //The parent should be selected to set child value.
                             $response = $this->addResponseData($response,0,$originalKey,false,$data['common_clm_name']);
-                            $response['failedColumns'][]=['column'=>$originalKey,'originalName'=>$data ['original_name'],"reason"=>"Parent Not Selected",'common_clm_name'=>$data['common_clm_name']];
+                            $response['failedColumns'][]=['column'=>$originalKey,'originalName'=>$data ['original_name'],"reason"=>"Parent Not Selected",'common_clm_name'=>$data['common_clm_name'],'sectionId'=>$data['section_id']];
                             $this->validatedColumns[$originalKey] = 0;
                         }
                         $response['itemsCountThatHaveValue'] += 1;

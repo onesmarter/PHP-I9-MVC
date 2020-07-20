@@ -44,12 +44,20 @@ $(document).ready(function() {
         if(errorJson=="") {
             return;
         }
-        errorJson.forEach(function(entry) {
+        // for (const [key, entry] of Object.entries(errorJson)) {
+        //     $('#errorLising').append('<h3>'+key+'</h3><div class="col-sm-6"><p class="pdf-list-p">'+entry.originalName+'</p></div>');
+        // }
+        for (const [key, data] of Object.entries(errorJson)) {
+            $('#errorLising').append('<div><h3>'+key+'</h3><br><br>');
+            data.forEach(function(entry) {
         
-        $('#errorLising').append('<div class="col-sm-6"><p class="pdf-list-p">'+entry.originalName+'</p></div>');
+            $('#errorLising').append('</p><div class="col-sm-6"><p class="pdf-list-p">'+entry.originalName+'</p></div>');
 
-            
-        });
+                
+            });
+            $('#errorLising').append('</div>');
+        }
+        // $('#errorLising').html(JSON.stringify(errorJson));
        // alert(errorJson);
     });
 });

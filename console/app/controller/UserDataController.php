@@ -14,11 +14,12 @@ class UserDataController {
         foreach ($list as $index => $model) {
           $failedColumns = array();
           $statusData = json_decode($model->statusData,TRUE);
-          foreach ($statusData['section'] as $section) {
+          foreach ($statusData['section'] as $sectionKey=>$section) {
             if(!empty($section['failedColumns'])) {
-              foreach ($section['failedColumns'] as $failedColumn) {
-                $failedColumns[] = $failedColumn;
-              }
+              $failedColumns[$sectionKey] = $section['failedColumns'] ;
+              // foreach ($section['failedColumns'] as $failedColumn) {
+              //   $failedColumns[] = $failedColumn;
+              // }
             }
           }
   
