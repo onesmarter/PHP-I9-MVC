@@ -26,6 +26,7 @@ It is a simple framework that using ***[RainTpl](https://github.com/feulf/raintp
     
 - You should change the **MODE** to **production** when you publish the website
 - debug mode will print the all exceptions
+- You should any data from the controller. Otherwise it will show error page or json error message
     
 ---
 ## Routes
@@ -81,6 +82,146 @@ Route::get('/{ showError  }', 'ExampleController@example')->setMiddleWare("Examp
 
 ---
 
+## Models
+- Are using only for a table
+- All tables columns are converted in to **camelCase fields** in models
+```html
+user_id Or User_id will converted into userId
+USER_ID  will converted into uSeRId
+```
+- It will replace all next character after the **_** to UpperCase except first character.
+- You can use array access **user['userId']** OR object access **user->userId** from the model.
+##### Creating a model
+- **http://SERVER_ADDRESS/console/createModel/user**
+- It will create a file called **UserModel** in **console/app/models directory**
+- And also create a table named **tbl_users** if not exists
+- You can pass preffered table name using **http://SERVER_ADDRESS/console/createModel/user/tablename**
 
+- **Don'ts**
+    1. Don't pass ['php','.php','models','model','controller','controllers','middleware','middlewares'] strings as a model name suffix.
+```
+ie, Don't use http://SERVER_ADDRESS/console/createModel/usermodel
+```
+##### Model Db functions [STATIC]
+- Some parameters are optional in all functions
+- **To find a model**
+```
+ModelName::find(primaryColumnValue); 
+OR
+ModelName::findOne($connection,$conditionArray,$orderBy,$ascending,$columns);
+OR
+ModelName::findOneByQuery($sqlQuery,$connection);
+```
+- **To find a list of data**
+```
+ModelName::findAll($connection,$conditionArray,$columns,$orderBy,$ascending,$limit,$offset);
+OR
+ModelName::findAllByQuery($sqlQuery,$connection);
+```
+- **Get data for pagination**
+```
+ModelName::pagination($connection,$conditionArray,$columns,$orderBy,$ascending,$limit,$offset);
+Default value for $limit is 25 and $offset is 0
+```
+**OUTPUT of pagination**
+```
+['totalCount'=>totalCount,'currentPage'=>page,'totalPages'=>totalPages,'from'=>offset,'requestedCount'=>limit,'count'=>modelsCount,'data'=>models]
+```
+
+##### Model Db functions [Object]
+- Some parameters are optional in all functions
+- **To fetch details**
+```
+$model->fetch();
+```
+- **To insert**
+```
+$model->insert();
+```
+- **To update**
+```
+$model->update();
+```
+- **To delete**
+```
+$model->delete();
+```
+- **To insertOrUpdate**
+```
+$model->insertOrUpdate();
+```
+
+- **To Save**
+```
+$model->save();
+save function will either insert a new data if primary value is empty or update the model.
+```
+
+##### Other functions(Object)
+- To get all variables as an array
+    1. You can pass **$forDatabase = true** to get the keys as table column names
+    2. Pass array of **$variableNames=['var1,'var2']** to get selected variables
+```
+$model->getModelValues($forDatabase,$variableNames);
+```
+    
+- To get all variables that have values defined as an array
+    1. You can pass **$forDatabase = true** to get the keys as table column names
+    2. Pass array of **$variableNames=['var1,'var2']** to get selected variables
+```
+$model->getFieldsHaveValue($forDatabase,$variableNames);
+```
+## Controllers
+- Default location is console/app/controller
+- Define functions to use Route from the InitController
+- InitController will pass three arguments to all routed functions
+```
+public function dashboard(Request $request,Connection $connection,RainTPL $tpl) {
+    return $tpl->draw('after-login/dashboard', $return_string = true);
+}
+```    
+##### Request 
+- Contains the all data [data=>arguments passed ,headers and files array]
+##### Creating a controller
+- **http://SERVER_ADDRESS/console/createController/user**
+- It will create a file called **UserController** in **console/app/controller directory**
+- **Don'ts**
+    1. Don't pass ['php','.php','models','model','controller','controllers','middleware','middlewares'] strings as a model name suffix.
+```
+ie, Don't use http://SERVER_ADDRESS/console/createController/userController
+```
+
+## MiddleWares
+- Default location is console/app/middlewares
+- The Middlewares are called before calling the controller functions
+- Middlewares are defined in console/app/routes/api.php OR console/app/routes/web.php
+```
+Route::group("AuthMiddleWare",function () {
+    Route::get('verify', 'DashBoardController@dashboard');
+});
+```
+- The Middleware class should contain a function named request
+- InitController will pass three arguments to request function [Request $request,Connection $connection,RainTPL $tpl]
+```
+public function request(Request $request,Connection $connection,RainTPL $tpl) {
+        if(empty($_SESSION['user'])) {
+            if(IS_FOR_JSON_OUTPUT===true) {
+                return jsonResponse(null,0,"Users cannot access this section without login");
+            }
+            header("location:login");
+            exit;
+        }
+    }
+``` 
+- **The controller function will not  call if the request function returning anything**
+
+##### Creating a Middleware
+- **http://SERVER_ADDRESS/console/createMiddleWare/auth**
+- It will create a file called **AuthMiddleWare** in **console/app/middlewares directory**
+- **Don'ts**
+    1. Don't pass ['php','.php','models','model','controller','controllers','middleware','middlewares'] strings as a model name suffix.
+```
+ie, Don't use http://SERVER_ADDRESS/console/createMiddleWare/authmiddleware
+```
 
     
