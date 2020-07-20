@@ -8,6 +8,7 @@ Route::group("LoginMiddleWare",function () {
 });
 Route::group("AuthMiddleWare",function () {
     Route::get('verify', 'DashBoardController@verifyList');
+    Route::get('/', 'DashBoardController@verifyList');
     Route::get('verified', 'DashBoardController@verifiedList');
     Route::get('amber', 'DashBoardController@amberList');
     Route::get('red', 'DashBoardController@redList');
@@ -15,7 +16,13 @@ Route::group("AuthMiddleWare",function () {
     Route::get('archive', 'DashBoardController@archiveList');
     Route::get('settings', 'SettingsController@settings');
     Route::get('logout', 'UserController@logout');
+    Route::post('validateAllUsers', 'ExcelUploadController@validateAllUsers');
+    Route::post('validateUser', 'ExcelUploadController@validateUser');
+    Route::get('uploadView', 'ExcelUploadController@uploadView');
     
 });
+
+Route::post('uploadExcelFile', 'ExcelUploadController@upload');
+
 
 /******************************************************************************************/
