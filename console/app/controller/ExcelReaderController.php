@@ -327,29 +327,33 @@ class ExcelReaderController {
                 }
                 $data["section".$key]['minimum-select-error'] = [];
             }
-            
-            if($lowestScore>$data ["section".$key]['lowestScore'] && $data ["section".$key]['lowestColumn']!=null && $data ["section".$key]['lowestColumn']!="") {
-                $lowestScore = $data ["section".$key]['lowestScore'];
-                $lowestColumn = $data ["section".$key]['lowestColumn'];
-            }
+            $intKey = intval($key);
             if($preparerSectionId==-1 && in_array('preparer_translator_assisted',$value)) {
-                $preparerSectionId = intval($key);
+                $preparerSectionId = $intKey;
             }
             if($listAsectionId==-1 && in_array('lista_document_title',$value)) {
-                $listAsectionId = intval($key);
+                $listAsectionId = $intKey;
             }
             if($listAsectionId_1==-1 && in_array('lista_document_title1',$value)) {
-                $listAsectionId_1 = intval($key);
+                $listAsectionId_1 = $intKey;
             }
             if($listAsectionId_2==-1 && in_array('lista_document_title2',$value)) {
-                $listAsectionId_2 = intval($key);
+                $listAsectionId_2 = $intKey;
             }
             if($listBsectionId==-1 && in_array('listb_document_title',$value)) {
-                $listBsectionId = intval($key);
+                $listBsectionId = $intKey;
             }
             if($listCsectionId==-1 && in_array('listc_document_title',$value)) {
-                $listCsectionId = intval($key);
+                $listCsectionId = $intKey;
             }
+            if($listAsectionId != $intKey && $listAsectionId_1 != $intKey && $listAsectionId_2 != $intKey && $listBsectionId != $intKey && $listCsectionId != $intKey) {
+                if($lowestScore>$data ["section".$key]['lowestScore'] && $data ["section".$key]['lowestColumn']!=null && $data ["section".$key]['lowestColumn']!="") {
+                    $lowestScore = $data ["section".$key]['lowestScore'];
+                    $lowestColumn = $data ["section".$key]['lowestColumn'];
+                }
+            }
+            
+            
             $isValidationSuccess = $isValidationSuccess && $data ["section".$key]['isValidationSuccess'];
         }
         
@@ -513,7 +517,7 @@ class ExcelReaderController {
                     }
 
                     // OCR reading always have value if the type is checkbox. 
-                    // So we want  maximum value of the  checkbox to identify whick checkbox is selected.
+                    // So we want  maximum value of the  checkbox to identify which checkbox is selected.
                     if($data['min_clm_select']!='0' || $data['max_clm_select']!='0' ) {
                         //SET highest value
                         if(!empty($this->clmValues[$originalKey]) && ($response['lowestScore']==101 || $response['lowestScore']<intval($this->clmValues[$originalKey]))) {

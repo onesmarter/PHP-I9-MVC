@@ -1,15 +1,20 @@
 $(document).ready(function() {
+
+    $('input[name="password"]').keypress(function(event){
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if(keycode == '13'){
+             $("#submitLogin").click();
+        }
+    });
     $("#submitLogin").click(function(e) {
         e.preventDefault();
         var errors = checkAllInputEmpty(["email","password"]);
         validateInput("email","isValidEmail","Invalid email",errors);
         haveMinLength("password",6,null,errors);
-        consoleMsg("DDDDD");
         if(isHavingError(errors)) {
             showErrors(errors,null);
             return;
         }
-        consoleMsg("cccccc");
         $.ajax({
             type: 'POST',
             url: 'api/login',
