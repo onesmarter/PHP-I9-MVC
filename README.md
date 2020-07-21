@@ -24,4 +24,10 @@
 ## Upload file for testing - only after login
 - YOUR_SERVER_ADDRESS/console/uploadView
 
+## JS files
+- [custom.js](https://github.com/onesmarter/PHP-I9-MVC/tree/master/console/resources/js/custom.js)
+- [dashboard.js](https://github.com/onesmarter/PHP-I9-MVC/tree/master/console/resources/js/dashboard.js)
+- [login.js](https://github.com/onesmarter/PHP-I9-MVC/tree/master/console/resources/js/login.js)
+- [settings.js](https://github.com/onesmarter/PHP-I9-MVC/tree/master/console/resources/js/settings.js)
+
 
