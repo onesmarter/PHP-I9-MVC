@@ -3,6 +3,8 @@
 namespace SFW\Controller;
 use SFW\Connection;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use SFW\Helpers\QueryBuilder;
+use SFW\Models\RequiredModel;
 use SFW\Models\UserDataModel;
 
 class ExcelReaderController {
@@ -145,6 +147,12 @@ class ExcelReaderController {
         if(!empty($this->requiredColumns)) {
             return;
         }
+         
+        $queryResult = $this->connection->query("SELECT * FROM tbl_required WHERE clm_name LIKE 'rule%' ORDER BY section_id ASC ");
+        while($data = $this->connection->fetchAssoc($queryResult,false,false)) {
+            $this->ruleGroups[$data['clm_name']]=$data;
+        }
+        $this->connection->freeResult($queryResult);
         $queryResult = $this->connection->query("SELECT * FROM tbl_required ORDER BY section_id ASC");
         // $notExists = [];
         //TO AVOID Notice: Undefined index: section_id in /Applications/MAMP/htdocs/I9-MVC/console/app/controller/ExcelReaderController.php on line 266 (validate function)
@@ -347,6 +355,7 @@ class ExcelReaderController {
                 $listCsectionId = $intKey;
             }
             if($listAsectionId != $intKey && $listAsectionId_1 != $intKey && $listAsectionId_2 != $intKey && $listBsectionId != $intKey && $listCsectionId != $intKey) {
+            
                 if($lowestScore>$data ["section".$key]['lowestScore'] && $data ["section".$key]['lowestColumn']!=null && $data ["section".$key]['lowestColumn']!="") {
                     $lowestScore = $data ["section".$key]['lowestScore'];
                     $lowestColumn = $data ["section".$key]['lowestColumn'];
@@ -380,54 +389,68 @@ class ExcelReaderController {
             }
         }
         
-        //VALIDATE list A, list A1 , list A2 , list B and list C
-        //RULE no 1.  Select only list A OR list A1 OR list A2
-        //Rule no 2.  OR Select both list B and list C
-        //Rule no 3.  Select list A and Select only one document from list A
 
         //SET total selected column count. ie, listA + listA1 + listA2 + listB + listC
         $listAtotalCount = $data['section'.$listAsectionId]['itemsCountThatHaveValue']+$data['section'.$listAsectionId_1]['itemsCountThatHaveValue']+$data['section'.$listAsectionId_2]['itemsCountThatHaveValue'];
-        $totalListSelected = $listAtotalCount+$data['section'.$listBsectionId]['itemsCountThatHaveValue']+$data['section'.$listBsectionId]['itemsCountThatHaveValue'];
-        //GET the lowest column key according to the rule
-        if($data['section'.$listAsectionId]['itemsCountThatHaveValue']>0) {
-            //LIST A..  If list A selected you can't set list B and list C data
-            $listLowestColumn =$data['section'.$listAsectionId]['lowestColumn'];
-        } else if($data['section'.$listAsectionId_1]['itemsCountThatHaveValue']>0) {
-            //LIST A1..  If list A selected you can't set list B and list C data
-            $listLowestColumn =$data['section'.$listAsectionId_1]['lowestColumn'];
-        } else if($data['section'.$listAsectionId_2]['itemsCountThatHaveValue']>0) {
-            //LIST A2..  If list A selected you can't set list B and list C data
-            $listLowestColumn =$data['section'.$listAsectionId_2]['lowestColumn'];
-        } else if($data['section'.$listBsectionId]['lowestColumn']<$data['section'.$listCsectionId]['lowestColumn']){
-            //list B and C selected..  But the lowest column is in list B
-            $listLowestColumn = $data['section'.$listBsectionId]['lowestColumn'];
-        } else {
-            //list B and C selected..  But the lowest column is in list C
-            $listLowestColumn = $data['section'.$listCsectionId]['lowestColumn'];
+        $totalListSelected = $listAtotalCount+$data['section'.$listBsectionId]['itemsCountThatHaveValue']+$data['section'.$listCsectionId]['itemsCountThatHaveValue'];
+        $data['sectionABC'] = ["itemsCountThatHaveValue"=>$totalListSelected,"isValidationSuccess"=>true];
+        if($this->ruleGroups['rule-4']['is_required']==1 && $this->ruleGroups['rule-5']['is_required']==1 && $this->ruleGroups['rule-6']['is_required']==1) {
+            //VALIDATE list A, list A1 , list A2 , list B and list C
+            //RULE no 1.  Select only list A OR list A1 OR list A2
+            //Rule no 2.  OR Select both list B and list C
+            //Rule no 3.  Select list A and Select only one document from list A
+
+            
+
+            
+            $listACount = $data['section'.$listAsectionId]['itemsCountThatHaveValue'];
+            $listA1Count = $data['section'.$listAsectionId_1]['itemsCountThatHaveValue'];
+            $listA2Count = $data['section'.$listAsectionId_2]['itemsCountThatHaveValue'];
+            $listBCount = $data['section'.$listBsectionId]['itemsCountThatHaveValue'];
+            $listCCount = $data['section'.$listCsectionId]['itemsCountThatHaveValue'];
+            //CHECK rule no 3
+            if(($listACount>0 && $listA1Count>0) || ($listACount>0 && $listA2Count>0)  || ($listA2Count>0 && $listA1Count>0) ) {
+                if($listACount>0 && !empty($data['section'.$listAsectionId]['lowestColumn'])) {
+                    //LIST A..  If list A selected you can't set list B and list C data
+                    $listLowestColumn =$data['section'.$listAsectionId]['lowestColumn'];
+                } else if($listA1Count>0 && !empty($data['section'.$listAsectionId_1]['lowestColumn'])) {
+                    //LIST A1..  If list A selected you can't set list B and list C data
+                    $listLowestColumn =$data['section'.$listAsectionId_1]['lowestColumn'];
+                } else {
+                    //LIST A2..  If list A selected you can't set list B and list C data
+                    $listLowestColumn =$data['section'.$listAsectionId_2]['lowestColumn'];
+                }
+                $data['sectionABC'] = ["reason"=>"Select any one doucument from list A ","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$listLowestColumn,"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
+            } else if(($listACount>0  || $listA1Count>0  || $listA2Count>0 ) && ($listBCount>0 || $listCCount>0)) {
+                //RULE NO 1
+                if($listBCount>0) {
+                    $listLowestColumn = $data['section'.$listBsectionId]['lowestColumn'];
+                } else {
+                    $listLowestColumn = $data['section'.$listCsectionId]['lowestColumn'];
+                }
+                $data['sectionABC'] = ["reason"=>"Select one of the document from list A OR Select both list B and list C","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$listLowestColumn,"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
+            } else {
+                
+                if($listA2Count<=0 && $listA1Count<=0 && $listACount>0 && !$data['section'.$listAsectionId]['isValidationSuccess']) {
+                    $data['sectionABC'] = ["reason"=>"Fill required columns of List A","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$data['section'.$listAsectionId]['lowestColumn'],"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
+                } else if($listACount<=0 && $listA2Count<=0 && $listA1Count>0 && !$data['section'.$listAsectionId_1]['isValidationSuccess']) {
+                    $data['sectionABC'] = ["reason"=>"Fill required columns of List A1","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$data['section'.$listAsectionId]['lowestColumn'],"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
+                } else if($listACount<=0 && $listA1Count<=0 && $listA2Count>0 && !$data['section'.$listAsectionId_2]['isValidationSuccess']) {
+                    $data['sectionABC'] = ["reason"=>"Fill required columns of List A2","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$data['section'.$listAsectionId]['lowestColumn'],"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
+                } else if(!$data['section'.$listBsectionId]['isValidationSuccess'] || !$data['section'.$listCsectionId]['isValidationSuccess'] ) {
+                    //CHECK is lista is success or not
+                    if(!$data['section'.$listAsectionId]['isValidationSuccess'] && !$data['section'.$listAsectionId_1]['isValidationSuccess'] && !$data['section'.$listAsectionId_2]['isValidationSuccess']) {
+                        //RULE NO 2
+                        if(!$data['section'.$listBsectionId]['isValidationSuccess'] ) {
+                            $data['sectionABC'] = ["reason"=>"Fill required columns of both list B and list C","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$data['section'.$listBsectionId]['lowestColumn'],"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
+                        } else {
+                            $data['sectionABC'] = ["reason"=>"Fill required columns of both list B and list C","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$data['section'.$listBsectionId]['lowestColumn'],"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
+                        }
+                    }
+                }
+            }
         }
-        
-        $listAselectedDocCount = $data['section'.$listAsectionId]['itemsCountThatHaveValue']>0 ? 1:0;
-        $listAselectedDocCount += $data['section'.$listAsectionId_1]['itemsCountThatHaveValue']>0 ? 1:0;
-        $listAselectedDocCount += $data['section'.$listAsectionId_2]['itemsCountThatHaveValue']>0 ? 1:0;
-        //Check Rule No 1
-        if($listAtotalCount>0 && ($data['section'.$listBsectionId]['itemsCountThatHaveValue']>0 || $data['section'.$listCsectionId]['itemsCountThatHaveValue']>0)) {
-            //$data['section'.$listAsectionId]['itemsCountThatHaveValue'] -> Have list A data 
-            //$data['section'.$listBsectionId]['itemsCountThatHaveValue']>0 || $data['section'.$listCsectionId]['itemsCountThatHaveValue']>0  -> Have either List B or List C have data
-            //So rule No 1
-            $data['sectionABC'] = ["reason"=>"Select one of the document from list A OR Select both list B and list C","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$listLowestColumn,"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
-        } else if($listAtotalCount==0 && (!$data['section'.$listBsectionId]['isValidationSuccess'] || !$data['section'.$listCsectionId]['isValidationSuccess'])) {
-            //Rule No 2 failed
-            $data['sectionABC'] = ["reason"=>"Fill required columns of both list B and list C","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$listLowestColumn,"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
-        } else if($listAselectedDocCount>1) {
-            //Rule No 3 failed
-            $data['sectionABC'] = ["reason"=>"Select any one doucument from list A ","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$listLowestColumn,"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
-        } else if( $data['section'.$listAsectionId]['isValidationSuccess'] || $data['section'.$listAsectionId_1]['isValidationSuccess'] || $data['section'.$listAsectionId_2]['isValidationSuccess'] || $data['section'.$listBsectionId]['isValidationSuccess'] || $data['section'.$listCsectionId]['isValidationSuccess'] ) {
-            //Validation success
-            $data['sectionABC'] = ["itemsCountThatHaveValue"=>$totalListSelected,"isValidationSuccess"=>true];
-        } else {
-            //Rule No 1 and 2 failed
-            $data['sectionABC'] = ["reason"=>"Select only list A OR Select both list B and list C","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$listLowestColumn,"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
-        }
+
         $isValidationSuccess = $isValidationSuccess && $data['sectionABC']['isValidationSuccess'];
         
         if(array_key_exists('reason',$data['sectionABC'])) {
@@ -438,8 +461,9 @@ class ExcelReaderController {
             unset($data['section'.$listAsectionId_1]);
             unset($data['section'.$listAsectionId_2]);
             unset($data['section'.$listBsectionId]);
-            unset($data['section'.$listAsectionId]);
+            unset($data['section'.$listCsectionId]);
         }
+        
         $lowestColumnOriginalName = "";
         if($lowestColumn!=null && $lowestColumn!="" && array_key_exists($lowestColumn,$this->allRequiredColumns)) {
             $lowestColumnOriginalName = $this->allRequiredColumns[$lowestColumn]['original_name'];
