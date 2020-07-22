@@ -15,11 +15,21 @@ class UserDataController {
           $failedColumns = array();
           $statusData = json_decode($model->statusData,TRUE);
           foreach ($statusData['section'] as $sectionKey=>$section) {
-            if(!empty($section['failedColumns'])) {
-              $failedColumns[$sectionKey] = $section['failedColumns'] ;
+            if(!empty($section['failedColumns'])) {//5 6 7 12 13
+              $first = $section['failedColumns'][0];
+              if($first['sectionId']!="5" && $first['sectionId']!="6" && $first['sectionId']!="7" && $first['sectionId']!='12' && $first['sectionId'] !='13') {
+                $failedColumns[$sectionKey] = $section['failedColumns'] ;
+              } 
+              
               // foreach ($section['failedColumns'] as $failedColumn) {
               //   $failedColumns[] = $failedColumn;
               // }
+            } else if($sectionKey=="sectionABC" && array_key_exists('reason',$section)) {
+              $failedColumns['Section List A, List B and List C']=[["column"=> $section['lowestColumn'],
+              "originalName"=> $section['reason'],
+              "reason"=> $section['reason'],
+              "common_clm_name"=> "lists",
+              "sectionId"=> "100"]];
             }
           }
   

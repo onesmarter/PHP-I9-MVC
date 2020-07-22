@@ -1,5 +1,8 @@
 $(document).ready(function() {
-
+    // $('.custom-datatable').DataTable();
+    $('.custom-datatable').bind('page', function () {
+        alert("dsfsdfsfsd");
+    });
     function updateStatus(event,element,url,removeTrOnSuccess=false) {
         event.preventDefault();
         var userId = $(element).attr('data-id');
@@ -46,7 +49,7 @@ $(document).ready(function() {
         updateStatus(e,this,'api/deleteUserData',true); 
     });
 
-    $(".verifyView").on("click", function(e){
+    $('[name="dashboard-table"]').on("click",".verifyView", function(e){
         var errorJson = $(this).data( "json" );
         $('#errorLising').html("");
         if(errorJson=="") {
@@ -58,7 +61,7 @@ $(document).ready(function() {
         for (const [key, data] of Object.entries(errorJson)) {
             $('#errorLising').append('<div><h3>'+key+'</h3><br><br>');
             data.forEach(function(entry) {
-        
+        consoleMsg(entry);
             $('#errorLising').append('</p><div class="col-sm-6"><p class="pdf-list-p">'+entry.originalName+'</p></div>');
 
                 

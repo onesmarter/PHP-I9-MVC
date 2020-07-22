@@ -423,12 +423,17 @@ class ExcelReaderController {
                 $data['sectionABC'] = ["reason"=>"Select any one doucument from list A ","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$listLowestColumn,"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
             } else if(($listACount>0  || $listA1Count>0  || $listA2Count>0 ) && ($listBCount>0 || $listCCount>0)) {
                 //RULE NO 1
+                $reason = "LIST A selected. ";
                 if($listBCount>0) {
+                    $reason .= "LIST B selected. ";
                     $listLowestColumn = $data['section'.$listBsectionId]['lowestColumn'];
                 } else {
                     $listLowestColumn = $data['section'.$listCsectionId]['lowestColumn'];
                 }
-                $data['sectionABC'] = ["reason"=>"Select one of the document from list A OR Select both list B and list C","lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$listLowestColumn,"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
+                if($listCCount>0) {
+                    $reason .= "LIST C selected. ";
+                }
+                $data['sectionABC'] = ["reason"=>"Select one of the document from list A OR Select both list B and list C. ".$reason,"lowestScore"=>0,"itemsCountThatHaveValue"=>$totalListSelected,"lowestColumn"=>$listLowestColumn,"lowestColumnCommonName"=>"","Column"=>"","lowestColumnCommonName"=>"","selectedItemCount"=>0,"isValidationSuccess"=>false];
             } else {
                 
                 if($listA2Count<=0 && $listA1Count<=0 && $listACount>0 && !$data['section'.$listAsectionId]['isValidationSuccess']) {
