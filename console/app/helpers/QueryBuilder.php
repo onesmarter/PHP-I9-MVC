@@ -151,12 +151,16 @@ class QueryBuilder {
         return $this->where($left,$leftBetween.' AND '.$rightBetween, ' BETWEEN ',$isForAnd,false);
     }
 
+    function like(String $left,String $right,bool $isForAnd=true,bool $addSingleQuoteToValue = true) {
+        return $this->where($left,$right,'LIKE',$isForAnd,$addSingleQuoteToValue);
+    }
+
     function where(String $left,String $right,String $operator="=",bool $isForAnd=true,bool $addSingleQuoteToValue = true) {
         $this->checkAndOrOnWhere($isForAnd);
         if($addSingleQuoteToValue === true) {
-            $this->where.=" ".$this->connection->sanitize($left).$this->connection->sanitize($operator)." '".$this->connection->sanitize($right)."' ";
+            $this->where.=" ".$this->connection->sanitize($left).' '.$this->connection->sanitize($operator)." '".$this->connection->sanitize($right)."' ";
         } else {
-            $this->where.=" ".$this->connection->sanitize($left).$this->connection->sanitize($operator)." ".$this->connection->sanitize($right)." ";
+            $this->where.=" ".$this->connection->sanitize($left).' '.$this->connection->sanitize($operator)." ".$this->connection->sanitize($right)." ";
         }
         
         $this->andOrAdded=false;
@@ -165,7 +169,7 @@ class QueryBuilder {
 
     function whereByQuery(String $left,String $query,String $operator="=",bool $isForAnd=true) {
         $this->checkAndOrOnWhere($isForAnd);
-        $this->where.=" ".$this->connection->sanitize($left).$this->connection->sanitize($operator)." ".$this->connection->sanitize($query)." ";
+        $this->where.=" ".$this->connection->sanitize($left).' '.$this->connection->sanitize($operator)." ".$this->connection->sanitize($query)." ";
         $this->andOrAdded=false;
         return $this;
     }

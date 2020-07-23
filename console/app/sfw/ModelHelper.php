@@ -1,6 +1,7 @@
 <?php
 namespace SFW;
 
+use Closure;
 use SFW\Connection;
 use SFW\Helpers\QueryBuilder;
 
@@ -9,10 +10,13 @@ class ModelHelper {
         $this->primaryColumn = $primaryKey;
         $this->table = $table;
         $this->primaryVariable = static::createName($primaryKey);
+        $this->tableKeys = $tableKeys;
+        $this->newVariables = [];
         foreach ($tableKeys as $key ) {
             $var = static::createName($key);
             $this->tblKeys [$key] = $var;
             $this->varKeys[$var] = $key;
+            $this->variableKeys[] = $var;
         }
         $this->varCount = count($tableKeys);
     }
@@ -46,6 +50,31 @@ class ModelHelper {
         return $value;
     }
 
+    public function isVarExits($variableName) {
+        return in_array($variableName,$this->variableKeys);
+    }
+
+    public function addNewVariable($variableName) {
+        if(!empty($variableName) && !$this->isVarExits($variableName) && !in_array($variableName,$this->newVariables)) {
+            $this->newVariables[]=$variableName;
+        }
+    }
+
+    public function removeNewVariable($variableName) {
+        echo array_search($variableName,$this->newVariables);
+        if(!empty($variableName)) {
+            $newArray = [];
+            foreach ($this->newVariables as $key) {
+                if($variableName!=$key) {
+                    $newArray[]=$key;
+                } else {
+                    echo $variableName." ".$key."<br>";
+                }
+            }
+            $this->newVariables = $newArray;
+        }
+    }
+
     public function getModelValues(Model &$model,bool $forDatabase = false,Array $varNames = null): Array {
         $values = [];
         foreach ($this->varKeys as $key => $value) {
@@ -58,14 +87,35 @@ class ModelHelper {
                 $values [$forDatabase === false? $key : $value] = NULL;
             }
         }
+        if($forDatabase===false) {
+            foreach ($this->newVariables as $key) {
+                if($varNames!==null && !array_key_exists($key,$varNames)) {
+                    continue;
+                }
+                if(isset($model->$key)) {
+                    $values[$key] = $model->$key;
+                } else {
+                    $values [ $key] = NULL;
+                }
+            }
+        }
         return $values;
     }
+
+    
 
     public function getFieldsHaveValue(Model &$model,bool $forDatabase = false,Array $varNames = null): Array {
         $values = [];
         foreach ($this->varKeys as $key => $value) {
             if(isset($model->$key) && ($varNames===null || array_key_exists($key,$varNames))) {
                 $values[$forDatabase === false? $key : $value] = $model->$key;
+            }
+        }
+        if($forDatabase===false) {
+            foreach ($this->newVariables as $key ) {
+                if(isset($model->$key) && ($varNames===null || array_key_exists($key,$varNames))) {
+                    $values[$key ] = $model->$key;
+                }
             }
         }
         return $values;
@@ -85,7 +135,31 @@ class ModelHelper {
         return $model;
     }
 
+    public function getColumnName(String $fieldName) {
+        if(!empty($fieldName)) {
+            if(isset($this->varKeys[$fieldName])) {
+                return $this->varKeys[$fieldName];
+            }
+            if(in_array($fieldName,$this->tableKeys)) {
+                return $fieldName;
+            }
+        }
+        return '';
+    }
 
+    public function getFieldName(String $columnName) {
+        if(!empty($columnName)) {
+            if(isset($this->tblKeys[$columnName])) {
+                return $this->tblKeys[$columnName];
+            }
+            if(in_array($columnName,$this->variableKeys)) {
+                return $columnName;
+            }
+        }
+        return '';
+    }
+
+     
 
     public function save(Model &$model,Connection $connection): Array  {
         $primaryKey = $this->primaryVariable;
@@ -94,8 +168,6 @@ class ModelHelper {
         }
         return $this->update($model,$connection);
     }
-
-
 
     public function update(Model &$model,Connection $connection): Array {
         
@@ -274,6 +346,97 @@ class ModelHelper {
         $totalPages = intval($totalCount/$limit) + (intval($totalCount%$limit)>0?1:0);
         $count = $models?count($models):0;
         return ['totalCount'=>$totalCount,'currentPage'=>$page,'totalPages'=>$totalPages,'from'=>$offset,'requestedCount'=>$limit,'count'=>$count,'data'=>$models];
+    }
+
+    private static function checkDataExits(Array $data,String $key,$defaultValue) {
+        if(array_key_exists($key,$data) && !empty($data[$key])) {
+          return $data[$key];
+        }
+        return $defaultValue;
+      }
+
+    public static function dataTablePagination($modelClassName,Array $data,?Connection $connection = NULL,QueryBuilder $builder = null,Closure $searchCallBack=null) {
+        if($data===null) {
+            throw new \Exception("Data should not be null", 1);       
+        }
+        if($connection === null) {
+            $connection = new Connection();
+        }
+        $model = static::initalizeModel($modelClassName,null);
+        $draw = empty($data['draw'])?0:$data['draw'];
+          
+          $dataTable = ["length"=>static::checkDataExits($data,'length',25),"start"=>static::checkDataExits($data,'start',0)];
+          $columns = [];
+          if(array_key_exists('columns',$data)) {
+            foreach ($data['columns'] as $column) {
+                $columns[]=$model->modelHelper->getColumnName($column['data']);
+            }
+          }
+          if(!empty($data['order'])) {
+            $columnIndex = static::checkDataExits($data['order'][0],'column',-1);
+            if(array_key_exists('columns',$data) && $columnIndex>-1) {
+              $dataTable['orderBy'] = $model->getColumnName(static::checkDataExits($data['columns'][$columnIndex],'data','id'));
+              
+            } else {
+                
+              $dataTable['orderBy'] = $model->modelHelper->primaryColumn;
+            }
+            $dataTable['order'] = static::checkDataExits($data['order'][0],'dir','asc');
+          } else {
+            $dataTable['orderBy'] = $model->modelHelper->primaryColumn;
+            $dataTable['order'] = 'asc';
+          }
+          if(array_key_exists('search',$data)) {
+            $dataTable['search'] = static::checkDataExits($data['search'],'value','');
+          }
+          
+          if($builder === null) {
+            $builder = $connection->getQueryBuider();
+          }
+          $totalRecords = $connection->fetchAssoc($connection->query($builder->getQuery($model->modelHelper->table,['COUNT('.$model->modelHelper->primaryColumn.') AS count'])));
+          if($totalRecords) {
+            $totalRecords = $totalRecords['count'];
+          } else {
+            $totalRecords = 0;
+          }
+          if(isset($dataTable['search']) && !empty(trim($dataTable['search']))) {
+              $search = $dataTable['search'];
+              if($searchCallBack!==null) {
+                $searchCallBack($builder,$search);
+              } else {
+                  if(empty($columns)) {
+                    $columns = $model->modelHelper->tableKeys;
+                  }
+                  if(!empty($builder->getWhere())) {
+                    $builder->and();
+                  }
+                  $builder->startgroup();
+                  foreach ($columns as $index => $column) {
+                    if($index!=0) {
+                        $builder->or();
+                    }
+                    $builder->like($column,'%'.$search.'%');
+                  }
+                  $builder->endgroup();
+              }
+              
+            
+          }
+          $totalRecordwithFilter = $connection->fetchAssoc($connection->query($builder->getQuery($model->modelHelper->table,['COUNT('.$model->modelHelper->primaryColumn.') AS count'])));
+          if($totalRecordwithFilter) {
+            $totalRecordwithFilter = $totalRecordwithFilter['count'];
+          } else {
+            $totalRecordwithFilter = 0;
+          }
+          $builder->limit($dataTable['length'],$dataTable['start']);
+          $builder->orderBy($dataTable['orderBy'],$dataTable['order']==="asc");
+          $models = static::findAllByQuery($modelClassName,$builder->getQuery($model->modelHelper->table),$connection);  
+          return array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecordwithFilter,
+            "aaData" => $models
+          );
     }
     
 }
