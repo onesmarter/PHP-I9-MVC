@@ -5,7 +5,13 @@
       <link rel="shortcut icon" href="{#ASSETS_PATH}images/favicon.ico" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <title>Dashboard</title>
+      <title>
+         @php
+         global $allParams;
+         $isDashboard = count($allParams)==0 || empty($allParams[0]) || $allParams[0]=='verify';
+         echo $isDashboard?'DashBoard':ucfirst($allParams[0]);
+         @endphp
+      </title>
       <meta name="description" content="" />
       <meta name="keywords" content="" />
       <meta name="robots" content="index, follow" />
@@ -24,19 +30,34 @@
    </head>
    <div class="header-top">
       <div class="header-sub d-flex align-items-center justify-content-between">
-         <div class="header-logo">
-            <div class="logo">
-               <img class="img-fluid" src="{#ASSETS_PATH}images/logo.png" >
-            </div>
-         </div>
-         <div class="header-user d-flex align-items-center justify-content-between">
-            <div class="user-name">
-				<h5>@php echo $_SESSION['user']['email']; @endphp</h5>
-			 </div>			 
-            <a href="logout"><div class="user-photo">
-               <img  class="img-fluid" src="{#ASSETS_PATH}images/user.png" >
-            </div></a>
-         </div>
+          <div class="header-logo">
+             {if="$isDashboard===false"}
+            <a href="{#SITE_URL}verify">
+             {/if}  
+               <div class="logo">
+                  <img class="img-fluid" src="{#ASSETS_PATH}images/logo.png">
+              </div>
+            {if="$isDashboard"}  
+            </a>
+            {/if}  
+          </div>
+          <div class="header-user d-flex align-items-center justify-content-between">
+              <div class="user-name">
+                  <h5>@php echo $_SESSION['user']['email']; @endphp</h5>
+              </div>
+              <div class="user-photo">
+                  <img class="img-fluid" src="{#ASSETS_PATH}images/user.png">
+              </div>
+              <div class="user-box">
+                  <div class="user-box-sub">
+                      <div class="userBox">
+                          <ul>
+                              <li> <a href="{#SITE_URL}logout"><i class="fal fa-power-off mr-1" aria-hidden="true"></i> Logout</li></a>
+                          </ul>
+                      </div>
+                  </div>
+              </div>
+          </div>
       </div>
-   </div>
+  </div>
    
