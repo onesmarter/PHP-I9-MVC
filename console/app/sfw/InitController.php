@@ -14,7 +14,7 @@ class InitController extends Connection {
         } else {
             $headers = [];
         }
-        $this->request = new Request([],$_FILES,$headers);
+        $this->request = new Request([],$_FILES,$headers,null);
         $this->params = $params;
         $this->tpl   = new RainTPL;
         $isForJsonOutput = IS_FOR_API === true || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'],"application/json") !== false) || (isset($this->request->headers['isJsonOutput']) && $this->request->headers['isJsonOutput']===true);
@@ -46,6 +46,7 @@ class InitController extends Connection {
                 $params[$p['param']] = $this->params[$p['position']];
             }
             $this->request->data = $params;
+            $this->request->route = $route;
 
             $loader = new \Composer\Autoload\ClassLoader();
             if(!empty($route->middleWare)) {

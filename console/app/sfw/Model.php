@@ -1,13 +1,16 @@
 <?php
 namespace SFW;
 
+use Closure;
 use SFW\Connection;
+use SFW\Helpers\QueryBuilder;
 
 abstract class Model implements \JsonSerializable,\ArrayAccess {
     private static Array $models = [];
     protected $table = '';
     public ?ModelHelper $modelHelper;
     protected ?Connection $connection = NULL;
+    private Array $newVars = [];
     public function __construct(?Connection $connection = NULL) {
         if(array_key_exists(get_class($this),static::$models)) {
             $this->modelHelper = static::$models[get_class($this)];
@@ -84,6 +87,18 @@ abstract class Model implements \JsonSerializable,\ArrayAccess {
         return $this->modelHelper->getFieldsHaveValue($this,$forDatabase,$variableNames);
     }
 
+    public function arrayToModel(Array $array,Model &$model,bool $fromDatabase = false) {
+        return $this->modelHelper->arrayToModel($array,$model,$fromDatabase);
+    }
+
+    public function getColumnName(String $fieldName) {
+        return $this->modelHelper->getColumnName($fieldName);
+    }
+
+    public function getFieldName(String $columnName) {
+        return $this->modelHelper->getFieldName($columnName);
+    }
+
 
 
     public final function save(): Array {
@@ -140,6 +155,10 @@ abstract class Model implements \JsonSerializable,\ArrayAccess {
         return ModelHelper::pagination(get_called_class(),$connection,$conditionArray,$columns,$orderBy,$ascending,$limit,$offset);
     }
 
+    public static function dataTablePagination(Array $data,?Connection $connection = NULL,QueryBuilder $builder = null,Closure $searchCallBack=null) {
+        return ModelHelper::dataTablePagination(get_called_class(),$data,$connection,$builder,$searchCallBack);
+    }
+
     public function jsonSerialize() {
         return $this->modelHelper->getModelValues($this);
     }
@@ -147,6 +166,7 @@ abstract class Model implements \JsonSerializable,\ArrayAccess {
     public function offsetSet($offset, $value) {
         if (!is_null($offset)) {
             $this->$offset = $value;
+            $this->modelHelper->addNewVariable($offset);
         }
     }
 
@@ -155,6 +175,7 @@ abstract class Model implements \JsonSerializable,\ArrayAccess {
     }
 
     public function offsetUnset($offset) {
+        $this->modelHelper->removeNewVariable($offset);
         unset($this->$offset);
     }
 

@@ -2,15 +2,16 @@
 namespace SFW;
 
 class Request implements \JsonSerializable,\ArrayAccess {
-    public function __construct(Array $data,Array $files,Array $headers) {
+    public function __construct(Array $data,Array $files,Array $headers,?Route $route) {
         $this->data = $data;
         $this->files = $files;
         $this->headers = $headers;
+        $this->route = $route;
         
     }
 
     public function jsonSerialize() {
-        return ['data'=>$this->data,'headers'=>$this->headers,'files'=>$this->files];
+        return ['data'=>$this->data,'headers'=>$this->headers,'files'=>$this->files,'route'=>$this->route];
     }
 
     public function offsetSet($offset, $value) {
