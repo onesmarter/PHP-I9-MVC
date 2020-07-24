@@ -123,11 +123,12 @@ ModelName::findAllByQuery($sqlQuery,$connection);
 ModelName::pagination($connection,$conditionArray,$columns,$orderBy,$ascending,$limit,$offset);
 Default value for $limit is 25 and $offset is 0
 ```
+
 **OUTPUT of pagination**
 ```
 ['totalCount'=>totalCount,'currentPage'=>page,'totalPages'=>totalPages,'from'=>offset,'requestedCount'=>limit,'count'=>modelsCount,'data'=>models]
 ```
-
+- **Datatable pagination - see below**
 ##### Model Db functions [Object]
 - Some parameters are optional in all functions
 - **To fetch details**
@@ -157,7 +158,7 @@ $model->save();
 save function will either insert a new data if primary value is empty or update the model.
 ```
 
-##### Other functions(Object)
+##### Model Other functions(Object)
 - To get all variables as an array
     1. You can pass **$forDatabase = true** to get the keys as table column names
     2. Pass array of **$variableNames=['var1,'var2']** to get selected variables
@@ -171,6 +172,17 @@ $model->getModelValues($forDatabase,$variableNames);
 ```
 $model->getFieldsHaveValue($forDatabase,$variableNames);
 ```
+
+- To get the column name of a variable
+```
+$model->getColumnName($variableName);
+```
+
+- To get the variable name of a column
+```
+$model->getFieldName($columnName);
+```
+
 ## Controllers
 - Default location is console/app/controller
 - Define functions to use Route from the InitController
@@ -225,3 +237,41 @@ ie, Don't use http://SERVER_ADDRESS/console/createMiddleWare/authmiddleware
 ```
 
     
+## Datatable pagination
+
+- Can use datatable auto pagination using ajax in this framework
+- You can pass your own search filter
+- The columns given by datatable is using for default search if the search filter is null
+- All columns of the table will use for default search  if the columns given by datatable is empty or the search filter is null
+**Without Conditions and search filter**
+```
+public function getList(Request $request,Connection $connection) {
+        $data = UserModel::dataTablePagination($request->data,$connection);
+}
+```
+**With Own Query Conditions and without search filter**
+```
+public function getList(Request $request,Connection $connection) {
+        $builder = $connection->getQueryBuider();
+        $builder = $builder->where('status','deleted','!=');
+        $data = UserModel::dataTablePagination($request->data,$connection,$builder);
+}
+```
+**Without Conditions and With search filter**
+```
+public function getList(Request $request,Connection $connection) {
+        $data = UserModel::dataTablePagination($request->data,$connection,null,function($queryBuilder,$searchString) {
+            $queryBuilder = $queryBuilder->like('name','%'.$searchString.'%');
+        });
+}
+```
+**With Conditions and  search filter**
+```
+public function getList(Request $request,Connection $connection) {
+        $builder = $connection->getQueryBuider();
+        $builder = $builder->where('status','deleted','!=');
+        $data = UserModel::dataTablePagination($request->data,$connection,$builder,function($queryBuilder,$searchString) {
+            $queryBuilder = $queryBuilder->like('name','%'.$searchString.'%');
+        });
+}
+```

@@ -369,19 +369,27 @@ class ModelHelper {
           $columns = [];
           if(array_key_exists('columns',$data)) {
             foreach ($data['columns'] as $column) {
-                $columns[]=$model->modelHelper->getColumnName($column['data']);
+                $c = $model->modelHelper->getColumnName($column['data']);
+                if(!empty($c)) {
+                    $columns[]= $c;
+                }
+                
             }
           }
           if(!empty($data['order'])) {
             $columnIndex = static::checkDataExits($data['order'][0],'column',-1);
             if(array_key_exists('columns',$data) && $columnIndex>-1) {
-              $dataTable['orderBy'] = $model->getColumnName(static::checkDataExits($data['columns'][$columnIndex],'data','id'));
-              
+              $c =  $model->getColumnName(static::checkDataExits($data['columns'][$columnIndex],'data','id'));
+              if(empty($c)) {
+                $dataTable['orderBy'] = $model->modelHelper->primaryColumn;
+              } else {
+                $dataTable['orderBy'] = $c;
+              }
             } else {
-                
               $dataTable['orderBy'] = $model->modelHelper->primaryColumn;
             }
-            $dataTable['order'] = static::checkDataExits($data['order'][0],'dir','asc');
+            $order = static::checkDataExits($data['order'][0],'dir','asc');
+            $dataTable['order'] =  \strtolower($order)=='desc'?'desc':'asc';
           } else {
             $dataTable['orderBy'] = $model->modelHelper->primaryColumn;
             $dataTable['order'] = 'asc';
