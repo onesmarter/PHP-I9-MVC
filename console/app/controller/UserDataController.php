@@ -2,6 +2,7 @@
 
 namespace SFW\Controller;
 use SFW\Connection;
+use SFW\Helpers\QueryBuilder;
 use SFW\Models\UserDataModel;
 use SFW\Request;
 
@@ -45,49 +46,77 @@ class UserDataController {
        * @param $tpl -> RainTPL instance
        * @param $query -> Custom query
        */
-      public function getList(int $from,int $to,Connection $connection,String $query = null) {
-          if($query === null) {
-            $builder = $connection->getQueryBuider();
-            $query = $builder->where('status','deleted','!=')->between('lowest_score',$from,$to)->getQuery('tbl_users_data');
-          }
-          
-          return $this->getParsedVerifyList( UserDataModel::findAllByQuery($query,$connection));         
+      public function getList(int $from,int $to,Connection $connection,QueryBuilder $builder = null,Array $data) {
+        if($builder === null) {
+          $builder = $connection->getQueryBuider();
+          $builder = $builder->where('status','deleted','!=')->between('lowest_score',$from,$to);
+        }
+        $models = UserDataModel::dataTablePagination($data,$connection,$builder,null);
+        // $models = UserDataModel::dataTablePagination($data,$connection,$builder,function($queryBuilder,$searchString) {
+        //   $queryBuilder->like('pdf_name','%'.$searchString.'%',' LIKE');
+        // });
+        $models['aaData']=$this->getParsedVerifyList($models['aaData']);
+        return $models;
+      }
+
+      private function checkDataExits(Array $data,String $key,$defaultValue) {
+        if(array_key_exists($key,$data) && !empty($data[$key])) {
+          return $data[$key];
+        }
+        return $defaultValue;
       }
   
-      public function amberList(Connection $connection) {
-        return $this->getList(60,79,$connection);
+      public function amberList(Request $request,Connection $connection) {
+        return $this->getList(60,79,$connection,null,$request->data);
       }
-      public function redList(Connection $connection) {
-        return $this->getList(0,59,$connection);
-      }
-      //Use autoVerifiedList instead
-      public function greenList(Connection $connection) {
-        return $this->getList(80,100,$connection);
-      }
-      public function autoVerifiedList(Connection $connection) {
+      public function amberVerifiedList(Request $request,Connection $connection) {
         $builder = $connection->getQueryBuider();
-        $query = $builder->where('status','auto-verified')->getQuery('tbl_users_data');
-        return $this->getList(0,0,$connection,$query);
+        $builder = $builder->where('status','verified')->between('lowest_score',60,79);
+        return $this->getList(60,79,$connection,$builder,$request->data);
       }
-      public function archiveList(Connection $connection) {
+      public function amberUnverifiedList(Request $request,Connection $connection) {
         $builder = $connection->getQueryBuider();
-        $query = $builder->where('status','archived')->getQuery('tbl_users_data');
-        return $this->getList(0,0,$connection,$query);
+        $builder = $builder->where('status','unverified')->between('lowest_score',60,79);
+        return $this->getList(60,79,$connection,$builder,$request->data);
       }
-      public function verifyList(Connection $connection) {
-        $builder = $connection->getQueryBuider();
-        $query = $builder->where('status','unverified')->getQuery('tbl_users_data');
-        return $this->getList(0,0,$connection,$query);
+      public function redList(Request $request,Connection $connection) {
+        return $this->getList(0,59,$connection,null,$request->data);
       }
-      public function verifiedList(Connection $connection) {
+      public function redVerifiedList(Request $request,Connection $connection) {
         $builder = $connection->getQueryBuider();
-        $query = $builder->where('status','verified')->or()->where('status','auto-verified')->getQuery('tbl_users_data');
-        return $this->getList(0,0,$connection,$query);
+        $builder = $builder->where('status','verified')->between('lowest_score',0,59);
+        return $this->getList(60,79,$connection,$builder,$request->data);
       }
-      public function deletedList(Connection $connection) {
+      public function redUnverifiedList(Request $request,Connection $connection) {
         $builder = $connection->getQueryBuider();
-        $query = $builder->where('status','deleted')->getQuery('tbl_users_data');
-        return $this->getList(0,0,$connection,$query);
+        $builder = $builder->where('status','unverified')->between('lowest_score',0,59);
+        return $this->getList(60,79,$connection,$builder,$request->data);
+      }
+
+      public function autoVerifiedList(Request $request,Connection $connection) {
+        $builder = $connection->getQueryBuider();
+        $query = $builder->where('status','auto-verified');
+        return $this->getList(0,0,$connection,$query,$request->data);
+      }
+      public function archiveList(Request $request,Connection $connection) {
+        $builder = $connection->getQueryBuider();
+        $query = $builder->where('status','archived');
+        return $this->getList(0,0,$connection,$query,$request->data);
+      }
+      public function verifyList(Request $request,Connection $connection) {
+        $builder = $connection->getQueryBuider();
+        $query = $builder->where('status','unverified');
+        return $this->getList(0,0,$connection,$query,$request->data);
+      }
+      public function verifiedList(Request $request,Connection $connection) {
+        $builder = $connection->getQueryBuider();
+        $query = $builder->where('status','verified');
+        return $this->getList(0,0,$connection,$query,$request->data);
+      }
+      public function deletedList(Request $request,Connection $connection) {
+        $builder = $connection->getQueryBuider();
+        $query = $builder->where('status','deleted');
+        return $this->getList(0,0,$connection,$query,$request->data);
       }
 
       public function listCount(Connection $connection) {

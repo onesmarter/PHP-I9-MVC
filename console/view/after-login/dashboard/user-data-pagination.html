@@ -1,0 +1,27 @@
+
+@php 
+$class = "red";
+if($model->lowestScore >= 60 && $model->lowestScore <= 79) {
+    $class = "amber";
+} else if($model->lowestScore >= 80 && $model->lowestScore <= 100) {
+    $class = "green";
+} 
+@endphp
+    <td1>{$model.pdfId}</td1>
+    <td1>{$model.pdfName}</td1>
+    <td1 class="text-center">{function="date('m/d/Y H:i:s', strtotime($model.processStartTime))"}</td1>
+    
+    <td1 class="text-center"> <span class="{$class}">@php echo $heading==""?ucfirst($class):$heading;@endphp</span> </td1>
+    
+    <td1 class="text-center"> <a href="" class="material-icons Medium tooltipped verifyView" data-position="top"
+            data-tooltip="Preview" data-toggle="modal" data-target="#view" data-json="{$model.errorList}" ><i class="fas fa-eye view-icon"></i></a> </td1>
+    <td1 class="text-center action">
+        <div class="row no-gutters justify-content-between">
+            {if="$model.status=='unverified'"}
+            <div class="col"> <a href="" class=""><i class="fas fa-check check-icon update_unverified" data-id="{$model.id}"></i></a> </div>
+            {/if}
+            {if="$model.status!='verified' && $model.status!='auto-verified' && $model.status!='deleted'  "}
+            <div class="col"> <a href="" class="remove Small"><i class="fas fa-trash updateDeleted"  data-id="{$model.id}"></i></a> </div>
+            {/if}
+        </div>
+    </td1>

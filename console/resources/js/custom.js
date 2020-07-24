@@ -9,41 +9,41 @@ $(document).ready(function() {
     });
 
 
-    $('.custom-datatable').DataTable({
-        fixedColumns: true,
-        fixedHeader: true,
-        scrollX: true,
-        language: {
-            search: "",
-            searchPlaceholder: "Search..."
-        },
-        aoColumnDefs: [
-            { "bSortable": false, "aTargets": [4, 5] }
-        ],
-        dom: 'Blfrtip',
-        buttons: [{
-                extend: 'pdf',
-                footer: true,
-                exportOptions: {
-                    columns: [0, 1, 2, 3]
-                }
-            },
-            {
-                extend: 'csv',
-                footer: true,
-                exportOptions: {
-                    columns: [0, 1, 2, 3]
-                }
-            },
-            {
-                extend: 'excel',
-                footer: true,
-                exportOptions: {
-                    columns: [0, 1, 2, 3]
-                }
-            }
-        ]
-    });
+    // $('.custom-datatable').DataTable({
+    //     fixedColumns: true,
+    //     fixedHeader: true,
+    //     scrollX: true,
+    //     language: {
+    //         search: "",
+    //         searchPlaceholder: "Search..."
+    //     },
+    //     aoColumnDefs: [
+    //         { "bSortable": false, "aTargets": [4, 5] }
+    //     ],
+    //     dom: 'Blfrtip',
+    //     buttons: [{
+    //             extend: 'pdf',
+    //             footer: true,
+    //             exportOptions: {
+    //                 columns: [0, 1, 2, 3]
+    //             }
+    //         },
+    //         {
+    //             extend: 'csv',
+    //             footer: true,
+    //             exportOptions: {
+    //                 columns: [0, 1, 2, 3]
+    //             }
+    //         },
+    //         {
+    //             extend: 'excel',
+    //             footer: true,
+    //             exportOptions: {
+    //                 columns: [0, 1, 2, 3]
+    //             }
+    //         }
+    //     ]
+    // });
 
     $('.reject-datatable').DataTable({
         language: {

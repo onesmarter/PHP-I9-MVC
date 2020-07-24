@@ -11,99 +11,129 @@
         </div>
     </div>
     {if="$needCount === true"}
-    <div class="row align-items-center card-dashboard">						
-      <div class="col col-3">					
-        <div class="card d-flex align-items-center">
-            <div class="card-body">
-            <h5 class="card-title">{$verifiedCount}</h5>
-            <p class="card-text">Total Verified</p>
-            </div>
-            <div class="card-body d-flex justify-content-end">
-                <span class="svg-small svg-total"></span>
+    
+    <div class="row align-items-center card-dashboard">	
+        			
+        <div class="col col-3">					
+            <a href="verified">	
+                <div class="card d-flex align-items-center">
+                    <div class="card-body">
+                    <h5 class="card-title">{$verifiedCount}</h5>
+                    <p class="card-text">Total Verified</p>
+                    </div>
+                    <div class="card-body d-flex justify-content-end">
+                        <span class="svg-small svg-total"></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col col-3">					
+            <div class="card d-flex align-items-center">
+                <div class="card-body">
+                <h5 class="card-title">{$unverifiedCount}</h5>
+                <p class="card-text">Verification Pending</p>
+                </div>
+                <div class="card-body d-flex justify-content-end">
+                    <span class="svg-too-small svg-pending"></span>
+                </div>
             </div>
         </div>
-      </div>
-      <div class="col col-3">					
-        <div class="card d-flex align-items-center">
-            <div class="card-body">
-            <h5 class="card-title">{$unverifiedCount}</h5>
-            <p class="card-text">Verification Pending</p>
-            </div>
-            <div class="card-body d-flex justify-content-end">
-                <span class="svg-too-small svg-pending"></span>
-            </div>
+        					  
+        <div class="col col-3">
+            <a href="autoVerified">						
+                <div class="card d-flex align-items-center">
+                    <div class="card-body">
+                    <h5 class="card-title">{$autoVerifiedCount}</h5>
+                    <p class="card-text">Auto Verified</p>
+                    </div>
+                    <div class="card-body d-flex justify-content-end">
+                        <span class="svg-small svg-verified-green"></span>
+                    </div>
+                </div>
+            </a>
         </div>
-      </div>					  
-      <div class="col col-3">					
-        <div class="card d-flex align-items-center">
-            <div class="card-body">
-            <h5 class="card-title">{$autoVerifiedCount}</h5>
-            <p class="card-text">Auto Verified</p>
-            </div>
-            <div class="card-body d-flex justify-content-end">
-                <span class="svg-small svg-verified-green"></span>
-            </div>
+            
+        
+        <div class="col col-3">
+            <a href="amberVerified">						
+                <div class="card d-flex align-items-center">
+                    <div class="card-body">
+                    <h5 class="card-title">{$verifiedAmberCount}</h5>
+                    <p class="card-text">Verified Amber</p>
+                    </div>
+                    <div class="card-body d-flex justify-content-end">
+                        <span class="svg-small svg-verified-amber"></span>
+                    </div>
+                </div>
+            </a>
         </div>
-      </div>
-      
-      <div class="col col-3">					
-        <div class="card d-flex align-items-center">
-            <div class="card-body">
-            <h5 class="card-title">{$verifiedAmberCount}</h5>
-            <p class="card-text">Verified Amber</p>
-            </div>
-            <div class="card-body d-flex justify-content-end">
-                <span class="svg-small svg-verified-amber"></span>
-            </div>
+        
+        
+        <div class="col col-3">
+            <a href="redVerified">						
+                <div class="card d-flex align-items-center">
+                    <div class="card-body">
+                    <h5 class="card-title">{$verifiedRedCount}</h5>
+                    <p class="card-text">Verified Red</p>
+                    </div>
+                    <div class="card-body d-flex justify-content-end">
+                        <span class="svg-small svg-verified-red"></span>
+                    </div>
+                </div>
+            </a>  
         </div>
-      </div>
-      <div class="col col-3">					
-        <div class="card d-flex align-items-center">
-            <div class="card-body">
-            <h5 class="card-title">{$verifiedRedCount}</h5>
-            <p class="card-text">Verified Red</p>
-            </div>
-            <div class="card-body d-flex justify-content-end">
-                <span class="svg-small svg-verified-red"></span>
-            </div>
+        
+        
+        <div class="col col-3">
+            <a href="rejected">	  					
+                <div class="card d-flex align-items-center">
+                    <div class="card-body">
+                    <h5 class="card-title">{$deletedCount}</h5>
+                    <p class="card-text">Rejected</p>
+                    </div>
+                    <div class="card-body d-flex justify-content-end">
+                        <span class="svg-too-small svg-rejected"></span>
+                    </div>
+                </div>
+            </a>
         </div>
-      </div>
-      <div class="col col-3">					
-        <div class="card d-flex align-items-center">
-            <div class="card-body">
-            <h5 class="card-title">{$deletedCount}</h5>
-            <p class="card-text">Rejected</p>
-            </div>
-            <div class="card-body d-flex justify-content-end">
-                <span class="svg-too-small svg-rejected"></span>
-            </div>
+        
+           
+        <div class="col col-3">
+            <a href="amberUnverified">	 					
+                <div class="card d-flex align-items-center">
+                    <div class="card-body">
+                    <h5 class="card-title">{$unverifiedAmberCount}</h5>
+                    <p class="card-text">Unverified Amber</p>
+                    </div>
+                    <div class="card-body d-flex justify-content-end">
+                        <span class="svg-small svg-unverified-amber"></span>
+                    </div>
+                </div>
+            </a> 
         </div>
-      </div>
-      <div class="col col-3">					
-        <div class="card d-flex align-items-center">
-            <div class="card-body">
-            <h5 class="card-title">{$unverifiedAmberCount}</h5>
-            <p class="card-text">Unverified Amber</p>
-            </div>
-            <div class="card-body d-flex justify-content-end">
-                <span class="svg-small svg-unverified-amber"></span>
-            </div>
+          
+        	 
+        <div class="col col-3">	
+            <a href="redUnverified">				
+                <div class="card d-flex align-items-center">
+                    <div class="card-body">
+                    <h5 class="card-title">{$unverifiedRedCount}</h5>
+                    <p class="card-text">Unverified Red</p>
+                    </div>
+                    <div class="card-body d-flex justify-content-end">
+                        <span class="svg-small svg-unverified-red"></span>
+                    </div>
+                </div>
+            </a>  
         </div>
-      </div>
-      <div class="col col-3">					
-        <div class="card d-flex align-items-center">
-            <div class="card-body">
-            <h5 class="card-title">{$unverifiedRedCount}</h5>
-            <p class="card-text">Unverified Red</p>
-            </div>
-            <div class="card-body d-flex justify-content-end">
-                <span class="svg-small svg-unverified-red"></span>
-            </div>
-        </div>
-      </div>
+          
                         
     </div>
     {/if}
+    <Input type="hidden" id="route" value="{$route}"}/>
+    <Input type="hidden" id="removeOnVerify" value="{$removeOnVerify}"}/>
     <!--dataTable-->
     <div class="dataTable-custom">
         <!--record-->
@@ -141,10 +171,10 @@
                         <td class="text-center action">
                             <div class="row no-gutters justify-content-between">
                                 {if="$value1.status=='unverified'"}
-                                <div class="col"> <a href="" class=""><i class="fas fa-check check-icon update_unverified" data-id="{$value.id}"></i></a> </div>
+                                <div class="col"> <a href="" class=""><i class="fas fa-check check-icon update_unverified" data-id="{$value1.id}"></i></a> </div>
                                 {/if}
                                 {if="$value1.status!='verified' && $value1.status!='auto-verified' && $value1.status!='deleted'  "}
-                                <div class="col"> <a href="" class="remove Small"><i class="fas fa-trash updateDeleted"  data-id="{$value.id}"></i></a> </div>
+                                <div class="col"> <a href="" class="remove Small"><i class="fas fa-trash updateDeleted"  data-id="{$value1.id}"></i></a> </div>
                                 {/if}
                             </div>
                         </td>

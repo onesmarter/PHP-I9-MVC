@@ -1,8 +1,6 @@
 $(document).ready(function() {
     // $('.custom-datatable').DataTable();
-    $('.custom-datatable').bind('page', function () {
-        alert("dsfsdfsfsd");
-    });
+    
     function updateStatus(event,element,url,removeTrOnSuccess=false) {
         event.preventDefault();
         var userId = $(element).attr('data-id');
@@ -19,6 +17,7 @@ $(document).ready(function() {
                         showSuccess(response.msg); 
                         if(removeTrOnSuccess) {
                             $(element).closest('tr').remove();
+                            $('[name="dashboard-table"]').DataTable().ajax.reload();
                         }
                         
                     } else {
@@ -34,20 +33,91 @@ $(document).ready(function() {
             error: function(er) {
                 showSuccess("Something went wrong",true);
                 $(element).removeClass('d-none');
-                consoleMsg(er);
             }
             
         });
     }
-    $(".updateVerified, .update_unverified").on("click", function(e){
+    $('[name="dashboard-table"]').on("click",".updateVerified, .update_unverified", function(e){
         $(this).addClass('d-none');
-        updateStatus(e,this,'api/setUserDataAsVerified');       
+        updateStatus(e,this,'api/setUserDataAsVerified',$('#removeOnVerify').val()==1);       
     });
 
-    $(".updateDeleted").on("click", function(e){
+    $('[name="dashboard-table"]').on("click",".updateDeleted", function(e){
         $(this).addClass('d-none');
         updateStatus(e,this,'api/deleteUserData',true); 
     });
+
+    $('[name="dashboard-table"]').DataTable({
+        fixedColumns: true,
+        fixedHeader: true,
+        scrollX: true,
+        language: {
+            search: "",
+            searchPlaceholder: "Search..."
+        },
+        aoColumnDefs: [
+            { "bSortable": false, "aTargets": [4, 5] }
+        ],
+        dom: 'Blfrtip',
+        buttons: [{
+                extend: 'pdf',
+                footer: true,
+                exportOptions: {
+                    columns: [0, 1, 2, 3]
+                }
+            },
+            {
+                extend: 'csv',
+                footer: true,
+                exportOptions: {
+                    columns: [0, 1, 2, 3]
+                }
+            },
+            {
+                extend: 'excel',
+                footer: true,
+                exportOptions: {
+                    columns: [0, 1, 2, 3]
+                }
+            }
+        ],
+        'processing': true,
+      'serverSide': true,
+      'serverMethod': 'post',
+      'ajax': {
+          'url':'api/'+$('#route').val()
+      },
+      'columns': [
+         { data: 'id' },
+         { data: 'pdfName' },
+         { data: 'processStartTime' },
+         { data: 'status' },
+         { data: 'id' },
+         { data: 'id' },
+      ],
+      "drawCallback": function( settings ) {
+        var api = this.api();
+        $.each( api.rows( {page:'current'} ).data(),function(entry){
+            
+            var tr = $('[name="dashboard-table"] tbody tr:nth-child('+(entry+1)+')');
+            
+            var index = $(tr).find('.sorting_1').index();
+            var html = $(tr).find('td:nth-child(1)').html();
+            html = html.split('td1').join("td");
+            $(tr).html(html);
+
+            if(index>-1) {
+                $(tr).find('td:nth-child('+(index+1)+')').addClass('sorting_1');
+            }
+            // parseModelToHtml(tr,entry);
+        });
+       
+
+        // Output the data for the visible rows to the browser's console
+        //console.log( api.rows( {page:'current'} ).data() );
+    },
+    });
+
 
     $('[name="dashboard-table"]').on("click",".verifyView", function(e){
         var errorJson = $(this).data( "json" );
@@ -59,16 +129,15 @@ $(document).ready(function() {
         //     $('#errorLising').append('<h3>'+key+'</h3><div class="col-sm-6"><p class="pdf-list-p">'+entry.originalName+'</p></div>');
         // }
         for (const [key, data] of Object.entries(errorJson)) {
-            $('#errorLising').append('<div><h3>'+key+'</h3><br><br>');
             data.forEach(function(entry) {
-        consoleMsg(entry);
-            $('#errorLising').append('</p><div class="col-sm-6"><p class="pdf-list-p">'+entry.originalName+'</p></div>');
-
-                
+                if ($('#section_' + entry.sectionId).length == 0) {
+                    $('#errorLising').append('<div class="failed-pdf-section" id="section_' + entry.sectionId + '"><h3>Section ' + entry.sectionId + '</h3></div>');
+    
+                    $('#section_' + entry.sectionId).append('<div class="col-sm-12"><p class="pdf-list-p">' + entry.originalName + '</p></div>');
+                } else {
+                    $('#section_' + entry.sectionId).append('<div class="col-sm-12"><p class="pdf-list-p">' + entry.originalName + '</p></div>');
+                }   
             });
-            $('#errorLising').append('</div>');
         }
-        // $('#errorLising').html(JSON.stringify(errorJson));
-       // alert(errorJson);
     });
 });
