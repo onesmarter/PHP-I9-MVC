@@ -14,16 +14,20 @@
 						<!--/profile-->
 						<!--navigation-->
 						<div class="navigation">
+							@php 
+							global $allParams;
+							$route = count($allParams)==0 || empty($allParams[0])?'verify':$allParams[0];
+							@endphp
 							<!-- <label><a href="{#SITE_URL}login" i class="fa fa-home mr-1" aria-hidden="true"></a></i> Home</label> -->
 							<ul>
-								<li><a href="{#SITE_URL}verify" class="waves-effect">Verify</a></li>
-								<li><a href="{#SITE_URL}verified" class="waves-effect">Verified</a></li>
-								<li><a href="{#SITE_URL}autoVerified" class="waves-effect">Auto Verified</a></li>
-								<li><a href="{#SITE_URL}rejected" class="waves-effect">Rejected</a></li>
-								<li><a href="{#SITE_URL}amber" class="waves-effect">Amber Folder</span></a></li>
-								<li><a href="{#SITE_URL}red" class="waves-effect">Red Folder</a></li>
+								<li><a href="{#SITE_URL}verify" class="waves-effect@php echo $route=='verify'?'selected':'';@endphp">Verify</a></li>
+								<li><a href="{#SITE_URL}verified" class="waves-effect@php echo $route=='verified'?'selected':'';@endphp" >Verified</a></li>
+								<li><a href="{#SITE_URL}autoVerified" class="waves-effect@php echo $route=='autoVerified'?'selected':'';@endphp" >Auto Verified</a></li>
+								<li><a href="{#SITE_URL}rejected" class="waves-effect@php echo $route=='rejected'?'selected':'';@endphp" >Rejected</a></li>
+								<li><a href="{#SITE_URL}amber" class="waves-effect@php echo $route=='amber'?'selected':'';@endphp" >Amber Folder</span></a></li>
+								<li><a href="{#SITE_URL}red" class="waves-effect@php echo $route=='red'?'selected':'';@endphp" >Red Folder</a></li>
 								<!-- <li><a href="{#SITE_URL}archive-folder" class="waves-effect">Archive Folder</a></li>								 -->
-								<li><a href="{#SITE_URL}settings" class="waves-effect">Settings</a></li>
+								<li><a href="{#SITE_URL}settings" class="waves-effect@php echo $route=='settings'?'selected':'';@endphp" >Settings</a></li>
 							</ul>
 						</div>
 						<!--/navigation-->
