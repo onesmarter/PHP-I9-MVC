@@ -575,7 +575,7 @@ class RainTPL {
 			elseif( strpos( $html, '@php' ) !== FALSE ) {
 
 				//close loop code
-				$compiled_code .=  " <?php ";
+				$compiled_code .=  "<?php ";
 
 			}
 			//PHP end tag
