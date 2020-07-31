@@ -587,32 +587,8 @@ class ExcelReaderController {
         return $response;
     }
 
-    public function cleanInput( $input ) {
-    
-        $search = array(
-            '@<script[^>]*?>.*?</script>@si', // Strip out javascript
-            '@<[\/\!]*?[^<>]*?>@si', // Strip out HTML tags
-            '@<style[^>]*?>.*?</style>@siU', // Strip style tags properly
-            '@<![\s\S]*?--[ \t\n\r]*>@',// Strip multi-line comments
-            // "#[^\\\\\\\\]'#"   
-        );
-    
-        $output = preg_replace( $search, '', $input );
-        return $output;
-    }
-
     
     public function sanitize( $input) {
-        
-        if( is_array( $input ) ) {
-            foreach( $input as $var => $val ) {
-                $output[ $var ] = $this->sanitize( $val );
-            }
-        } else {
-           
-            $input  = $this->cleanInput( $input );
-            $input = $this->connection-> escapeString( $input  );
-        }
-        return $input;
+        return $this->connection->sanitize($input);
     }
 }
